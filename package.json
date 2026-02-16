@@ -1,0 +1,29 @@
+{
+  "name": "cce-performance-tests",
+  "version": "1.0.0",
+  "description": "Performance tests using k6",
+  "main": "index.js",
+  "scripts": {
+    "test": "k6 run tests/meter-ingestion.spec.ts",
+    "test:meter-ingestion": "k6 run tests/meter-ingestion.spec.ts",
+    "test:health": "k6 run tests/health-check.spec.ts",
+    "test:dynatrace": "k6 run tests/meter-ingestion.spec.ts -o output-dynatrace",
+    "test:meter-ingestion:dashboard": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_OPEN=true K6_WEB_DASHBOARD_EXPORT=reports/k6-report.html k6 run tests/meter-ingestion.spec.ts",
+    "test:health:dashboard": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_OPEN=true K6_WEB_DASHBOARD_EXPORT=reports/k6-report.html k6 run tests/health-check.spec.ts"
+  },
+  "keywords": [
+    "k6",
+    "performance",
+    "testing",
+    "cce",
+    "dynatrace"
+  ],
+  "author": "Yusuf Karacaburun <yusuf.karacaburun2@eneco.com>",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@grafana/openapi-to-k6": "^0.4.1",
+    "@types/k6": "^0.48.0",
+    "typescript": "^5.0.0"
+  }
+}

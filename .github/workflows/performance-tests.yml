@@ -1,0 +1,81 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+
+jobs:
+  test:
+    name: ${{ matrix.test-name }} (${{ matrix.environment }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, test]
+        include:
+          - test-name: Smoke Test
+            test-file: tests/smoke.spec.ts
+            needs-custom-binary: false
+            environment: dev
+          - test-name: Smoke Test
+            test-file: tests/smoke.spec.ts
+            needs-custom-binary: false
+            environment: test
+          - test-name: Meter Ingestion Test
+            test-file: tests/meter-ingestion.spec.ts
+            needs-custom-binary: false
+            environment: dev
+          - test-name: Meter Ingestion Test
+            test-file: tests/meter-ingestion.spec.ts
+            needs-custom-binary: false
+            environment: test
+          - test-name: Dynatrace Test
+            test-file: tests/dynatrace-test.spec.ts
+            needs-custom-binary: true
+            output-flag: -o output-dynatrace
+            environment: dev
+          - test-name: Dynatrace Test
+            test-file: tests/dynatrace-test.spec.ts
+            needs-custom-binary: true
+            output-flag: -o output-dynatrace
+            environment: test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        if: matrix.needs-custom-binary
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'latest'
+
+      - name: Install xk6
+        if: matrix.needs-custom-binary
+        run: go install go.k6.io/xk6/cmd/xk6@latest
+
+      - name: Build custom k6 binary with Dynatrace extension
+        if: matrix.needs-custom-binary
+        run: xk6 build --with github.com/Dynatrace/xk6-output-dynatrace
+
+      - name: Setup k6
+        if: ${{ !matrix.needs-custom-binary }}
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run test
+        if: ${{ !matrix.needs-custom-binary }}
+        env:
+          ENV: ${{ matrix.environment }}
+        uses: grafana/run-k6-action@v1
+        with:
+          path: ${{ matrix.test-file }}
+
+      - name: Run dynatrace test
+        if: matrix.needs-custom-binary
+        env:
+          ENV: ${{ matrix.environment }}
+          K6_DYNATRACE_URL: ${{ secrets.K6_DYNATRACE_URL }}
+          K6_DYNATRACE_APITOKEN: ${{ secrets.K6_DYNATRACE_APITOKEN }}
+          K6_DYNATRACE_FLUSH_PERIOD: ${{ secrets.K6_DYNATRACE_FLUSH_PERIOD }}
+        run: ./k6 run --env ENV=${{ matrix.environment }} ${{ matrix.test-file }} ${{ matrix.output-flag }}
+        continue-on-error: true

@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Custom k6 binary with extensions
+.xk6/
+
+# Environment variables (contains secrets)
+.env
+
+# Build artifacts
+*.log
+*.err
+reports/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+.tmp/
