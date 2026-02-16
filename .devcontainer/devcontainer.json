@@ -1,39 +1,39 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
-  "remoteUser": "node",
+	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+	"remoteUser": "node",
 
-  "features": {
-    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "latest"
-    },
-    "ghcr.io/grafana/devcontainer-features/k6:1": {
-      "with": ["github.com/Dynatrace/xk6-output-dynatrace"]
-    }
-  },
+	"features": {
+		"ghcr.io/devcontainers/features/docker-in-docker:2": {},
+		"ghcr.io/devcontainers/features/go:1": {
+			"version": "latest"
+		},
+		"ghcr.io/grafana/devcontainer-features/k6:1": {
+			"with": ["github.com/Dynatrace/xk6-output-dynatrace"]
+		}
+	},
 
-  "forwardPorts": [5197, 5665],
+	"forwardPorts": [5197, 5665],
 
-  "postCreateCommand": "npm install && npm install -g @devcontainers/cli && ./.devcontainer/setup-env.sh",
-  "updateContentCommand": "npm install -g @devcontainers/cli",
+	"postCreateCommand": "npm install && npm install -g @devcontainers/cli && ./.devcontainer/setup-env.sh",
+	"updateContentCommand": "npm install -g @devcontainers/cli",
 
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "editor.formatOnSave": true,
-        "editor.defaultFormatter": "esbenp.prettier-vscode",
-        "[typescript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "files.associations": {
-          "*.ts": "typescript"
-        }
-      },
-      "extensions": [
-        "mads-hartmann.bash-ide-vscode",
-        "esbenp.prettier-vscode",
-        "github.vscode-pull-request-github"
-      ]
-    }
-  }
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"editor.formatOnSave": true,
+				"editor.defaultFormatter": "esbenp.prettier-vscode",
+				"[typescript]": {
+					"editor.defaultFormatter": "esbenp.prettier-vscode"
+				},
+				"files.associations": {
+					"*.ts": "typescript"
+				}
+			},
+			"extensions": [
+				"mads-hartmann.bash-ide-vscode",
+				"esbenp.prettier-vscode",
+				"github.vscode-pull-request-github"
+			]
+		}
+	}
 }
