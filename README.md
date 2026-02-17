@@ -79,6 +79,12 @@ The `.env` file is not copied into the image; use `-e` or a bind mount as above.
 docker run --rm -v $(pwd):/app cce-performance-tests npm run test
 ```
 
+**Open a shell in the container:**
+
+```bash
+docker run --rm -it --entrypoint sh cce-performance-tests
+```
+
 ## Running Tests
 
 **Run meter ingestion test (defaults to dev environment):**
