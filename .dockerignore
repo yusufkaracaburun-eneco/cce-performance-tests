@@ -1,0 +1,25 @@
+# Dependencies
+node_modules/
+
+# Git
+.git/
+
+# Environment and secrets
+.env
+.env.*
+
+# Build artifacts and caches
+.tmp/
+reports/
+.xk6/
+*.log
+*.err
+
+# IDE and editor
+.vscode/
+.idea/
+.devcontainer/
+
+# OS
+.DS_Store
+Thumbs.db
