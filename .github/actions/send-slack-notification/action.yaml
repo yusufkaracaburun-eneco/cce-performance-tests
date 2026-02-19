@@ -44,15 +44,16 @@ runs:
         SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
       run: |
         TIMESTAMP=$(date +%s)
+        # Use | as delimiter to avoid issues with special characters in values
         PAYLOAD=$(sed \
-          -e "s/{{COLOR}}/$COLOR/g" \
-          -e "s/{{TEST_NAME}}/${{ inputs.test-name }}/g" \
-          -e "s/{{ENVIRONMENT}}/${{ inputs.environment }}/g" \
-          -e "s/{{STATUS}}/$STATUS/g" \
-          -e "s/{{GITHUB_SERVER_URL}}/${{ inputs.github-server-url }}/g" \
-          -e "s/{{GITHUB_REPOSITORY}}/${{ inputs.github-repository }}/g" \
-          -e "s/{{GITHUB_RUN_ID}}/${{ inputs.github-run-id }}/g" \
-          -e "s/{{TIMESTAMP}}/$TIMESTAMP/g" \
+          -e "s|{{COLOR}}|$COLOR|g" \
+          -e "s|{{TEST_NAME}}|${{ inputs.test-name }}|g" \
+          -e "s|{{ENVIRONMENT}}|${{ inputs.environment }}|g" \
+          -e "s|{{STATUS}}|$STATUS|g" \
+          -e "s|{{GITHUB_SERVER_URL}}|${{ inputs.github-server-url }}|g" \
+          -e "s|{{GITHUB_REPOSITORY}}|${{ inputs.github-repository }}|g" \
+          -e "s|{{GITHUB_RUN_ID}}|${{ inputs.github-run-id }}|g" \
+          -e "s|{{TIMESTAMP}}|$TIMESTAMP|g" \
           "$GITHUB_ACTION_PATH/payload-template.json")
         
         curl -X POST -H 'Content-type: application/json' \

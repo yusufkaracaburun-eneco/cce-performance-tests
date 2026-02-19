@@ -43,12 +43,16 @@ jobs:
         include:
           - test-name: Meter Ingestion Test
             test-file: tests/meter-ingestion.spec.ts
+          - test-name: Health Check Test
+            test-file: tests/health-check.spec.ts
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Go
         uses: actions/setup-go@v5
+        with: 
+          cache: true
 
       - name: Install xk6
         run: go install go.k6.io/xk6/cmd/xk6@latest
