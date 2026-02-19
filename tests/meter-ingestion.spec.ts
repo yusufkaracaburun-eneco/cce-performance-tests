@@ -21,7 +21,7 @@ export function setup(): EnvironmentValues {
 
 /**
  * Meter ingestion test using the reusable scenario.
- * 
+ *
  * This test delegates to the meterIngestionScenario which implements the VU logic.
  * The scenario can be reused across different test configurations (smoke, stress, etc.)
  * and environments (dev, test, acc, prod).

@@ -65,10 +65,7 @@ export function generateElectricityPayload(
  * @param iterId - Iteration ID
  * @returns Complete gas meter payload ready for API submission
  */
-export function generateGasPayload(
-	vuId: number,
-	iterId: number,
-): MeterPayload {
+export function generateGasPayload(vuId: number, iterId: number): MeterPayload {
 	return MeterBuilderFactory.create(MeterType.GAS, vuId, iterId)
 		.withConnectionMetadata(vuId, iterId)
 		.withLabelAndCommodity("eneco")

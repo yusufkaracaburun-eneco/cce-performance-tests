@@ -27,36 +27,36 @@ export type MeterIngestionScenarioOptions = {
 
 /**
  * Reusable scenario for meter ingestion testing.
- * 
+ *
  * This scenario implements the meter ingestion flow:
  * 1. Generate a meter payload
  * 2. Publish the payload to the backend
  * 3. Validate the response
  * 4. Log errors if configured
- * 
+ *
  * The scenario is designed to be reusable across different test configurations:
  * - Different environments (dev, test, acc, prod)
  * - Different workloads (smoke, stress, average)
  * - Different error handling strategies
- * 
+ *
  * @param baseUrl - Base URL of the API (e.g., "https://api.example.com")
  * @param options - Optional configuration for the scenario
- * 
+ *
  * @example
  * ```typescript
  * // Basic usage
  * meterIngestionScenario("https://api.example.com");
- * 
+ *
  * // With error handler
  * const errorHandler = ErrorHandler.createConsoleLogger();
  * meterIngestionScenario("https://api.example.com", { errorHandler });
- * 
+ *
  * // With custom tags
  * meterIngestionScenario("https://api.example.com", {
  *   tags: { environment: "prod", test_type: "smoke" }
  * });
  * ```
- * 
+ *
  * @see https://grafana.com/blog/organizing-your-grafana-k6-performance-testing-suite-best-practices-to-get-started/#2.-implement-reusable-test-scenarios
  */
 export function gasMeterIngestionExampleScenario(

@@ -93,18 +93,16 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	}
 
 	withVolumes(iterId: number): this {
-		const values: VolumeValue[] = this.buildIntervalValues(iterId).map(
-			(v) => ({
-				timestamp: v.timestamp ?? undefined,
-				consumption: v.consumption ?? 0,
-				production: v.production ?? 0,
-				temperatureCorrection: null,
-				caloricValue: null,
-				isPeak: false,
-				consumptionSource: v.consumptionSource ?? "ACTUAL",
-				productionSource: v.productionSource ?? "ACTUAL",
-			}),
-		);
+		const values: VolumeValue[] = this.buildIntervalValues(iterId).map((v) => ({
+			timestamp: v.timestamp ?? undefined,
+			consumption: v.consumption ?? 0,
+			production: v.production ?? 0,
+			temperatureCorrection: null,
+			caloricValue: null,
+			isPeak: false,
+			consumptionSource: v.consumptionSource ?? "ACTUAL",
+			productionSource: v.productionSource ?? "ACTUAL",
+		}));
 		this.payload.message.data.volumes = {
 			interval: {
 				unit: "Wh",
