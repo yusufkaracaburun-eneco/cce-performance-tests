@@ -1,0 +1,58 @@
+name: 'Prepare k6 Flags'
+description: 'Prepare k6 command flags based on workflow inputs and Dynatrace configuration'
+
+inputs:
+  environment:
+    description: 'Environment to test'
+    required: false
+    default: 'dev'
+  virtual-users:
+    description: 'Number of virtual users'
+    required: false
+    default: ''
+  duration:
+    description: 'Test duration'
+    required: false
+    default: ''
+  dynatrace-url:
+    description: 'Dynatrace URL'
+    required: false
+    default: ''
+  dynatrace-api-token:
+    description: 'Dynatrace API token'
+    required: false
+    default: ''
+
+outputs:
+  flags:
+    description: 'Prepared k6 flags string'
+    value: ${{ steps.prepare.outputs.flags }}
+
+runs:
+  using: composite
+  steps:
+    - name: Prepare k6 flags
+      id: prepare
+      shell: bash
+      env:
+        K6_DYNATRACE_URL: ${{ inputs.dynatrace-url }}
+        K6_DYNATRACE_APITOKEN: ${{ inputs.dynatrace-api-token }}
+      run: |
+        ENV="${{ inputs.environment }}"
+        VUS="${{ inputs.virtual-users }}"
+        DUR="${{ inputs.duration }}"
+        
+        FLAGS="--env ENVIRONMENT=$ENV"
+        [ -n "$VUS" ] && FLAGS="$FLAGS --env VIRTUAL_USERS=$VUS"
+        [ -n "$DUR" ] && FLAGS="$FLAGS --env DURATION=$DUR"
+        
+        # Only add Dynatrace output if secrets are configured
+        if [ -n "$K6_DYNATRACE_URL" ] && [ -n "$K6_DYNATRACE_APITOKEN" ]; then
+          FLAGS="$FLAGS -o output-dynatrace"
+          echo "Dynatrace output enabled"
+        else
+          echo "Dynatrace output disabled (secrets not configured)"
+        fi
+        
+        echo "flags=$FLAGS" >> $GITHUB_OUTPUT
+        echo "k6 flags: $FLAGS"

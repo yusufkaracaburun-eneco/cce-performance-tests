@@ -62,39 +62,21 @@ jobs:
 
       - name: Prepare k6 flags
         id: prepare-flags
-        env:
-          K6_DYNATRACE_URL: ${{ secrets.K6_DYNATRACE_URL }}
-          K6_DYNATRACE_APITOKEN: ${{ secrets.K6_DYNATRACE_APITOKEN }}
-        run: |
-          ENV="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}"
-          VUS="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.virtual_users || '' }}"
-          DUR="${{ github.event_name == 'workflow_dispatch' && github.event.inputs.duration || '' }}"
-          
-          FLAGS="--env ENVIRONMENT=$ENV"
-          [ -n "$VUS" ] && FLAGS="$FLAGS --env VIRTUAL_USERS=$VUS"
-          [ -n "$DUR" ] && FLAGS="$FLAGS --env DURATION=$DUR"
-          
-          # Only add Dynatrace output if secrets are configured
-          if [ -n "$K6_DYNATRACE_URL" ] && [ -n "$K6_DYNATRACE_APITOKEN" ]; then
-            FLAGS="$FLAGS -o output-dynatrace"
-            echo "Dynatrace output enabled"
-          else
-            echo "Dynatrace output disabled (secrets not configured)"
-          fi
-          
-          echo "flags=$FLAGS" >> $GITHUB_OUTPUT
-          echo "k6 flags: $FLAGS"
+        uses: ./.github/actions/prepare-k6-flags
+        with:
+          environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+          virtual-users: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.virtual_users || '' }}
+          duration: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.duration || '' }}
+          dynatrace-url: ${{ secrets.K6_DYNATRACE_URL }}
+          dynatrace-api-token: ${{ secrets.K6_DYNATRACE_APITOKEN }}
 
       - name: Prepare report filename
         id: report-filename
         run: |
           REPORT_NAME=$(echo "${{ matrix.test-name }}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-          REPORT_FILE="reports/k6-report-${REPORT_NAME}.html"
+          REPORT_FILE="k6-report-${REPORT_NAME}.html"
           echo "filename=$REPORT_FILE" >> $GITHUB_OUTPUT
           echo "name=$REPORT_NAME" >> $GITHUB_OUTPUT
-
-      - name: Create reports directory
-        run: mkdir -p reports
 
       - name: Run k6 test
         id: run-k6-test
