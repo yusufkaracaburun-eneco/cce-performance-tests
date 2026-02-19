@@ -71,3 +71,56 @@ jobs:
           K6_DYNATRACE_FLUSH_PERIOD: ${{ secrets.K6_DYNATRACE_FLUSH_PERIOD }}
         run: ./k6 run --env ENVIRONMENT=${{ matrix.environment }} ${{ matrix.test-file }} ${{ matrix.output-flag }}
         continue-on-error: true
+
+      - name: Send Slack notification
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS="✅ Passed"
+            COLOR="good"
+          else
+            STATUS="❌ Failed"
+            COLOR="danger"
+          fi
+          
+          PAYLOAD=$(cat <<EOF
+          {
+            "attachments": [
+              {
+                "color": "$COLOR",
+                "title": "Performance Test Results",
+                "fields": [
+                  {
+                    "title": "Test",
+                    "value": "${{ matrix.test-name }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Environment",
+                    "value": "${{ matrix.environment }}",
+                    "short": true
+                  },
+                  {
+                    "title": "Status",
+                    "value": "$STATUS",
+                    "short": true
+                  },
+                  {
+                    "title": "Workflow",
+                    "value": "<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Run>",
+                    "short": true
+                  }
+                ],
+                "footer": "GitHub Actions",
+                "ts": $(date +%s)
+              }
+            ]
+          }
+          EOF
+          )
+          
+          curl -X POST -H 'Content-type: application/json' \
+            --data "$PAYLOAD" \
+            $SLACK_WEBHOOK_URL
