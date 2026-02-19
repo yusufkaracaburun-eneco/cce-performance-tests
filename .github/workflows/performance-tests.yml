@@ -14,14 +14,6 @@ jobs:
       matrix:
         environment: [dev, test]
         include:
-          - test-name: Smoke Test
-            test-file: tests/smoke.spec.ts
-            needs-custom-binary: false
-            environment: dev
-          - test-name: Smoke Test
-            test-file: tests/smoke.spec.ts
-            needs-custom-binary: false
-            environment: test
           - test-name: Meter Ingestion Test
             test-file: tests/meter-ingestion.spec.ts
             needs-custom-binary: false
@@ -30,15 +22,13 @@ jobs:
             test-file: tests/meter-ingestion.spec.ts
             needs-custom-binary: false
             environment: test
-          - test-name: Dynatrace Test
-            test-file: tests/dynatrace-test.spec.ts
-            needs-custom-binary: true
-            output-flag: -o output-dynatrace
+          - test-name: Health Check Test
+            test-file: tests/health-check.spec.ts
+            needs-custom-binary: false
             environment: dev
-          - test-name: Dynatrace Test
-            test-file: tests/dynatrace-test.spec.ts
-            needs-custom-binary: true
-            output-flag: -o output-dynatrace
+          - test-name: Health Check Test
+            test-file: tests/health-check.spec.ts
+            needs-custom-binary: false
             environment: test
     steps:
       - name: Checkout
@@ -65,17 +55,19 @@ jobs:
       - name: Run test
         if: ${{ !matrix.needs-custom-binary }}
         env:
-          ENV: ${{ matrix.environment }}
+          ENVIRONMENT: ${{ matrix.environment }}
         uses: grafana/run-k6-action@v1
         with:
           path: ${{ matrix.test-file }}
+          flags: --compatibility-mode experimental_enhanced
+          inspect-flags: --compatibility-mode experimental_enhanced
 
       - name: Run dynatrace test
         if: matrix.needs-custom-binary
         env:
-          ENV: ${{ matrix.environment }}
+          ENVIRONMENT: ${{ matrix.environment }}
           K6_DYNATRACE_URL: ${{ secrets.K6_DYNATRACE_URL }}
           K6_DYNATRACE_APITOKEN: ${{ secrets.K6_DYNATRACE_APITOKEN }}
           K6_DYNATRACE_FLUSH_PERIOD: ${{ secrets.K6_DYNATRACE_FLUSH_PERIOD }}
-        run: ./k6 run --env ENV=${{ matrix.environment }} ${{ matrix.test-file }} ${{ matrix.output-flag }}
+        run: ./k6 run --env ENVIRONMENT=${{ matrix.environment }} ${{ matrix.test-file }} ${{ matrix.output-flag }}
         continue-on-error: true
