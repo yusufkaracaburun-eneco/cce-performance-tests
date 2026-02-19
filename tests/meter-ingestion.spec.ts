@@ -17,7 +17,9 @@ export const options = getOptions();
 
 export function setup(): EnvironmentValues {
 	const environmentValues = getEnvironmentValues();
-	console.info(`Meter ingestion test started: ${environmentValues.baseUrl}, ${environmentValues.testStartTime}, ${options.vus} virtual users, ${options.duration} duration`);
+	console.info(
+		`Meter ingestion test started: ${environmentValues.baseUrl}, ${environmentValues.testStartTime}, ${options.vus} virtual users, ${options.duration} duration`,
+	);
 	return environmentValues;
 }
 
