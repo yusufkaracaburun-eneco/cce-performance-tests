@@ -27,31 +27,18 @@ on:
         required: false
         default: '30s'
         type: string
-      tests:
-        description: 'Tests to run (comma-separated, e.g., meter-ingestion,health-check). Leave empty to run all tests.'
-        required: false
-        default: ''
-        type: string
 
 jobs:
   test:
-    name: ${{ matrix.test-name }}
+    name: Run k6 tests
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - test-name: Meter Ingestion Test
-            test-file: tests/meter-ingestion.spec.ts
-          - test-name: Health Check Test
-            test-file: tests/health-check.spec.ts
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Go
         uses: actions/setup-go@v5
-        with: 
+        with:
           cache: true
 
       - name: Install xk6
@@ -70,15 +57,7 @@ jobs:
           dynatrace-url: ${{ secrets.K6_DYNATRACE_URL }}
           dynatrace-api-token: ${{ secrets.K6_DYNATRACE_APITOKEN }}
 
-      - name: Prepare report filename
-        id: report-filename
-        run: |
-          REPORT_NAME=$(echo "${{ matrix.test-name }}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
-          REPORT_FILE="k6-report-${REPORT_NAME}.html"
-          echo "filename=$REPORT_FILE" >> $GITHUB_OUTPUT
-          echo "name=$REPORT_NAME" >> $GITHUB_OUTPUT
-
-      - name: Run k6 test
+      - name: Run k6 tests
         id: run-k6-test
         uses: grafana/run-k6-action@v1
         env:
@@ -87,9 +66,9 @@ jobs:
           K6_WEB_DASHBOARD: true
           K6_WEB_DASHBOARD_PORT: -1
           K6_WEB_DASHBOARD_PERIOD: 10s
-          K6_WEB_DASHBOARD_EXPORT: ${{ steps.report-filename.outputs.filename }}
+          K6_WEB_DASHBOARD_EXPORT: k6-report.html
         with:
-          path: ${{ matrix.test-file }}
+          path: tests/*.spec.ts
           flags: ${{ steps.prepare-flags.outputs.flags }}
           debug: true
 
@@ -97,8 +76,8 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: k6-report-${{ steps.report-filename.outputs.name }}
-          path: ${{ steps.report-filename.outputs.filename }}
+          name: k6-report
+          path: k6-report.html
           retention-days: 30
 
       - name: Send Slack notification
@@ -106,7 +85,7 @@ jobs:
         if: always()
         uses: ./.github/actions/send-slack-notification
         with:
-          test-name: ${{ matrix.test-name }}
+          test-name: Performance Tests
           environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
           job-status: ${{ job.status }}
           slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
