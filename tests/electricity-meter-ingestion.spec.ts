@@ -1,41 +1,24 @@
-import {
-	type EnvironmentValues,
-	getEnvironmentValues,
-} from "../configs/env.conf.ts";
-import { getOptions } from "../configs/options.conf.ts";
-import { ErrorHandler } from "../lib/error-handler.ts";
 import { electricityMeterIngestionScenario } from "../scenarios/apis/electricity-meter-ingestion.ts";
-
-// Create error handler for this test
-const errorHandler = ErrorHandler.createConsoleLogger();
-
-export const options = getOptions("loadHigh");
-
-export function setup(): EnvironmentValues {
-	const environmentValues = getEnvironmentValues();
-	console.info(
-		`Electricity meter ingestion test started: ${environmentValues.baseUrl}, ${environmentValues.testStartTime}, ${options.vus} virtual users, ${options.duration} duration`,
-	);
-	return environmentValues;
-}
+import { createTestConfig } from "./lib/test-config.ts";
+import { createMeterIngestionTest } from "./lib/test-factory.ts";
 
 /**
- * Electricity meter ingestion test using the electricity-specific scenario.
+ * Electricity meter ingestion test configuration.
  *
  * This test uses generateElectricityPayload which produces electricity payloads
  * matching the electricity example shape (E1B, AZI, dual-tariff, Wh intervals).
  */
-export default function electricityMeterIngestionTest(
-	data: ReturnType<typeof setup>,
-) {
-	electricityMeterIngestionScenario(data.baseUrl, {
-		errorHandler,
-		tags: {
-			test_name: "electricity_meter_ingestion",
-		},
-	});
-}
+const testConfig = createTestConfig({
+	testName: "electricity_meter_ingestion",
+	loadProfile: "loadHigh",
+	scenario: electricityMeterIngestionScenario,
+	description:
+		"Electricity meter ingestion test using the electricity-specific scenario. Uses generateElectricityPayload which produces electricity payloads matching the electricity example shape (E1B, AZI, dual-tariff, Wh intervals).",
+});
 
-export function teardown(data: ReturnType<typeof setup>) {
-	// Teardown logic can be added here if needed
-}
+const test = createMeterIngestionTest(testConfig);
+
+export const options = test.options;
+export const setup = test.setup;
+export default test.default;
+export const teardown = test.teardown;

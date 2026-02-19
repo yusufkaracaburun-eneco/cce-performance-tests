@@ -1,54 +1,25 @@
-import {
-	type EnvironmentValues,
-	getEnvironmentValues,
-} from "../configs/env.conf.ts";
-import { getOptions } from "../configs/options.conf.ts";
-import { ErrorHandler } from "../lib/error-handler.ts";
 import { meterIngestionScenario } from "../scenarios/apis/meter-ingestion.ts";
-
-// Create error handler for this test
-const errorHandler = ErrorHandler.createConsoleLogger();
-
-export const options = getOptions("loadHigh");
-
-export function setup(): EnvironmentValues {
-	const environmentValues = getEnvironmentValues();
-	console.info(
-		`Meter ingestion test started: ${environmentValues.baseUrl}, ${environmentValues.testStartTime}, ${options.vus} virtual users, ${options.duration} duration`,
-	);
-	return environmentValues;
-}
+import { createTestConfig } from "./lib/test-config.ts";
+import { createMeterIngestionTest } from "./lib/test-factory.ts";
 
 /**
- * Meter ingestion test using the reusable scenario.
+ * Meter ingestion test configuration.
  *
- * This test delegates to the meterIngestionScenario which implements the VU logic.
+ * This test uses the reusable meterIngestionScenario which implements the VU logic.
  * The scenario can be reused across different test configurations (smoke, stress, etc.)
  * and environments (dev, test, acc, prod).
  */
-export default function meterIngestionTest(data: ReturnType<typeof setup>) {
-	meterIngestionScenario(data.baseUrl, {
-		errorHandler,
-		tags: {
-			test_name: "meter_ingestion",
-		},
-	});
-}
+const testConfig = createTestConfig({
+	testName: "meter_ingestion",
+	loadProfile: "loadHigh",
+	scenario: meterIngestionScenario,
+	description:
+		"Meter ingestion test using the reusable scenario. Delegates to meterIngestionScenario which implements the VU logic.",
+});
 
-export function teardown(data: ReturnType<typeof setup>) {
-	// Teardown logic can be added here if needed
-	// For example: cleanup, final reporting, etc.
-}
+const test = createMeterIngestionTest(testConfig);
 
-/**
- * Writes the first generated payload to scenarios/test-data/meter-payload.json
- * and the default summary to stdout.
- */
-export function handleSummary(data: unknown) {
-	return {
-		"scenarios/test-data/meter-payload.json":
-			payloadCapture.json ??
-			JSON.stringify({ message: "No payload captured" }),
-		stdout: textSummary(data, { indent: " ", enableColors: true }),
-	};
-}
+export const options = test.options;
+export const setup = test.setup;
+export default test.default;
+export const teardown = test.teardown;
