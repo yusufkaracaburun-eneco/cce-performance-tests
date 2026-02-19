@@ -7,12 +7,9 @@
 		"format": "biome format --write .",
 		"lint": "biome lint --write .",
 		"check": "biome check --write .",
-		"test": "k6 run tests/meter-ingestion.spec.ts",
-		"test:meter-ingestion": "k6 run tests/meter-ingestion.spec.ts",
-		"test:health": "k6 run tests/health-check.spec.ts",
-		"test:dynatrace": "k6 run tests/meter-ingestion.spec.ts -o output-dynatrace",
-		"test:meter-ingestion:dashboard": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_OPEN=true K6_WEB_DASHBOARD_EXPORT=reports/k6-report.html k6 run tests/meter-ingestion.spec.ts",
-		"test:health:dashboard": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_OPEN=true K6_WEB_DASHBOARD_EXPORT=reports/k6-report.html k6 run tests/health-check.spec.ts",
+		"test": "k6 run tests/*.spec.ts",
+		"test:dynatrace": "k6 run tests/*.spec.ts -o output-dynatrace",
+		"test:dashboard": "K6_WEB_DASHBOARD=true K6_WEB_DASHBOARD_OPEN=true K6_WEB_DASHBOARD_EXPORT=reports/k6-report.html k6 run tests/*.spec.ts",
 		"prepare": "husky"
 	},
 	"keywords": [

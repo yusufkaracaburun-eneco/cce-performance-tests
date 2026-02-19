@@ -35,23 +35,23 @@ const thresholds: Thresholds = {
 
 const stages: Record<string, Stage> = {
 	smoke: {
-		duration: "30s", // Minimum 30s for report generation
+		duration: "30s",
 		target: 1,
 	},
 	stress: {
-		duration: "60s", // 1 minute for stress test reports
+		duration: "60s",
 		target: 10,
 	},
 	loadLow: {
-		duration: "30s", // 30 seconds for low load reports
+		duration: "30s",
 		target: 5,
 	},
 	loadMed: {
-		duration: "60s", // 1 minute for medium load reports
+		duration: "60s",
 		target: 10,
 	},
 	loadHigh: {
-		duration: "90s", // 1.5 minutes for high load reports
+		duration: "90s",
 		target: 15,
 	},
 };

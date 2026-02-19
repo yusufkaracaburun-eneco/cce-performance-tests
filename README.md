@@ -59,12 +59,6 @@ docker run --rm cce-performance-tests
 docker run --rm -e BASE_URL=https://api.example.com -e K6_DYNATRACE_APITOKEN=your-token cce-performance-tests
 ```
 
-**Run a specific npm script:**
-
-```bash
-docker run --rm cce-performance-tests npm run test:health
-```
-
 **Mount a local `.env` file (so the container reads your existing env config):**
 
 ```bash
@@ -97,12 +91,6 @@ npm run test:meter-ingestion
 
 ```bash
 npm run test:meter-ingestion:prd
-```
-
-**Run health check test:**
-
-```bash
-npm run test:health
 ```
 
 **Run tests with k6 directly:**
