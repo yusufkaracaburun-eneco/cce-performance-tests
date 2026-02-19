@@ -41,6 +41,7 @@ export type SourceEnum =
 	| "MANUAL"
 	| "UNDEFINED";
 
+/** Avro: data.connectionMetadata (ConnectionMetaData). */
 export interface ConnectionMetadata {
 	connectionPointEAN?: string | null;
 	countryCode?: string | null;
@@ -48,8 +49,10 @@ export interface ConnectionMetadata {
 	supplierEAN?: string | null;
 	profileCategoryCode?: ProfileCategoryCode | null;
 	determinedEnergyConsumption?: DeterminedEnergyConsumption | null;
+	isDualTariffMeter?: boolean | null;
 }
 
+/** Avro: data.usagePeriod (UsagePeriod). date = YYYY-MM-DD, timezone = tzdata (e.g. Europe/Amsterdam). period/interval = ISO 8601 duration (e.g. P1D, PT15M). */
 export interface UsagePeriod {
 	date?: string | null;
 	timezone?: string | null;
@@ -57,6 +60,7 @@ export interface UsagePeriod {
 	interval?: string | null;
 }
 
+/** One item in data.reading.values (Avro ReadingValuesItem). Used for daily cumulative start/end. */
 export interface DayReadingValue {
 	start?: number | null;
 	end?: number | null;
@@ -64,45 +68,59 @@ export interface DayReadingValue {
 	endSource?: SourceEnum | null;
 	isPeak?: boolean | null;
 	injection?: boolean | null;
+	temperatureCorrection?: number | null;
+	caloricValue?: number | null;
 }
 
+/** Avro data.reading (ReadingValuesRecord): unit (e.g. kWh, MTQ), intervalDuration P1D, values. */
 export interface DayReadings {
 	unit?: string | null;
+	intervalDuration?: string | null; // ISO 8601 e.g. P1D
 	values?: DayReadingValue[] | null;
 }
 
+/** One item in interval values (Avro VolumeValuesItem / electricity interval). timestamp = RFC3339 start of interval. */
 export interface IntervalReadingValue {
 	timestamp?: string | null;
 	consumption?: number | null;
 	production?: number | null;
 	consumptionSource?: SourceEnum | null;
 	productionSource?: SourceEnum | null;
+	isPeak?: boolean | null;
+	temperatureCorrection?: number | null;
+	caloricValue?: number | null;
 }
 
+/** Interval-level readings: unit (e.g. Wh for electricity), intervalDuration (e.g. PT15M), values. */
 export interface IntervalReadings {
 	unit?: string | null;
+	intervalDuration?: string | null; // ISO 8601 e.g. PT15M
 	values?: IntervalReadingValue[] | null;
 }
 
+/** Maps to Avro data.reading (day) + interval shape for electricity (data.volume-style intervals in Wh). */
 export interface Readings {
 	day?: DayReadings | null;
 	interval?: IntervalReadings | null;
 }
 
+/** One item in data.volume.values (Avro VolumeValuesItem). Gas: temperatureCorrection, caloricValue typically set. */
 export interface VolumeValue {
 	timestamp?: string | null;
 	consumption?: number | null;
 	production?: number | null;
 	temperatureCorrection?: number | null;
 	caloricValue?: number | null;
-	isPeak: boolean; // Required, default: false
+	isPeak?: boolean | null; // Required in API conversion, default: false
 	consumptionSource?: SourceEnum | null;
 	productionSource?: SourceEnum | null;
 }
 
+/** Avro data.volume (VolumeRecord): unit (e.g. Wh, DM3), intervalDuration (e.g. PT15M, PT1H), values. */
 export interface Volumes {
 	interval: {
-		unit: string; // Required
+		unit: string;
+		intervalDuration?: string | null; // ISO 8601 e.g. PT15M, PT1H
 		values?: VolumeValue[] | null;
 	};
 }

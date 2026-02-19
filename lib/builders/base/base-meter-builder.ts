@@ -3,14 +3,10 @@
 
 import { uuidv4 } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
 import type {
-	ConnectionMetadata,
 	DeterminedEnergyConsumption,
 	EnecoLabel,
-	MeterData,
 	MeterPayload,
 	ProfileCategoryCode,
-	SourceEnum,
-	UsagePeriod,
 } from "./meter-payload-types.ts";
 
 export abstract class BaseMeterBuilder {
@@ -61,6 +57,7 @@ export abstract class BaseMeterBuilder {
 		iterId: number,
 		profileCategoryCode?: ProfileCategoryCode,
 		determinedEnergyConsumption: DeterminedEnergyConsumption = "AMI",
+		isDualTariffMeter?: boolean | null,
 	): this {
 		this.payload.message.data.connectionMetadata = {
 			connectionPointEAN: `EAN-${vuId}-${iterId}`,
@@ -70,6 +67,9 @@ export abstract class BaseMeterBuilder {
 			profileCategoryCode:
 				profileCategoryCode || this.getDefaultProfileCategoryCode(),
 			determinedEnergyConsumption: determinedEnergyConsumption,
+			...(isDualTariffMeter !== undefined && {
+				isDualTariffMeter,
+			}),
 		};
 		return this;
 	}
@@ -90,11 +90,13 @@ export abstract class BaseMeterBuilder {
 	}
 
 	withUsagePeriod(): this {
+		// Keep usage period date in sync with eventTime day (RFC 3339 / ISO date)
+		const dateStr = this.eventTime.split("T")[0];
 		this.payload.message.data.usagePeriod = {
-			date: new Date().toISOString().split("T")[0],
+			date: dateStr,
 			timezone: "Europe/Amsterdam",
-			period: "P1D", // ISO 8601 interval duration: 1 day
-			interval: "PT15M", // ISO 8601 interval duration: 15 minutes
+			period: "P1D",
+			interval: "PT15M",
 		};
 		return this;
 	}

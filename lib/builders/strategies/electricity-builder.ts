@@ -1,40 +1,77 @@
 // Electricity meter builder - Strategy Pattern implementation
-// Handles electricity-specific payload generation (kWh units)
+// Produces payloads matching ProcessedP4UsagesDayAlignedEvent_elec_example (kWh day readings, Wh interval/volume)
 
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import type {
+	IntervalReadingValue,
 	ProfileCategoryCode,
-	Readings,
 	SourceEnum,
+	VolumeValue,
 } from "../base/meter-payload-types.ts";
+
+const ELEC_DAY_OFFSET = 6_395_000;
+const ELEC_DAY_OFFSET_2 = 5_610_000;
 
 export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	getCommodityEnum(): "E" {
-		return "E"; // Electricity commodity enum
+		return "E";
 	}
 
 	getUnit(): string {
-		return "kWh"; // Electricity unit
+		return "kWh";
 	}
 
 	getDefaultProfileCategoryCode(): ProfileCategoryCode {
-		return "E1A"; // Default electricity profile category
+		return "E1B"; // Match example; dual-tariff typical
+	}
+
+	/** Build interval/volume values for the usage day (15-min slots, Wh). */
+	private buildIntervalValues(iterId: number): IntervalReadingValue[] {
+		const period = this.payload.message.data.usagePeriod;
+		const date = period?.date ?? new Date().toISOString().split("T")[0];
+		const tz = period?.timezone ?? "Europe/Amsterdam";
+		const offset = tz === "Europe/Amsterdam" ? "+0100" : "+0000";
+		const baseConsumptions = [27, 35, 14, 20];
+		return [
+			{ time: "00:00", consumption: baseConsumptions[0] },
+			{ time: "00:15", consumption: baseConsumptions[1] },
+			{ time: "23:30", consumption: baseConsumptions[2] },
+			{ time: "23:45", consumption: baseConsumptions[3] },
+		].map(({ time, consumption }, i) => ({
+			timestamp: `${date}T${time}:00.000${offset}`,
+			consumption: consumption + iterId + i,
+			production: 0,
+			consumptionSource: "ACTUAL" as SourceEnum,
+			productionSource: "ACTUAL" as SourceEnum,
+			isPeak: false,
+			temperatureCorrection: null,
+			caloricValue: null,
+		}));
 	}
 
 	withDayReadings(iterId: number): this {
-		// Initialize readings if not exists
 		if (!this.payload.message.data.readings) {
 			this.payload.message.data.readings = {};
 		}
-
 		this.payload.message.data.readings.day = {
-			unit: this.getUnit(),
+			unit: "kWh",
+			intervalDuration: "P1D",
 			values: [
 				{
-					start: 0,
-					end: 1000 + iterId * 10,
-					startSource: "ACTUAL" as SourceEnum,
+					start: ELEC_DAY_OFFSET + iterId * 100,
+					end: ELEC_DAY_OFFSET + 2000 + iterId * 100,
+					startSource: "CORRECTED" as SourceEnum,
 					endSource: "ACTUAL" as SourceEnum,
+					isPeak: true,
+					injection: false,
+				},
+				{
+					start: ELEC_DAY_OFFSET_2 + iterId * 10,
+					end: ELEC_DAY_OFFSET_2 + 1000 + iterId * 10,
+					startSource: "CORRECTED" as SourceEnum,
+					endSource: "ACTUAL" as SourceEnum,
+					temperatureCorrection: null,
+					caloricValue: null,
 					isPeak: false,
 					injection: false,
 				},
@@ -44,30 +81,37 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	}
 
 	withIntervalReadings(iterId: number): this {
-		// Initialize readings if not exists
 		if (!this.payload.message.data.readings) {
 			this.payload.message.data.readings = {};
 		}
-
 		this.payload.message.data.readings.interval = {
-			unit: this.getUnit(),
-			values: [
-				{
-					timestamp: this.timestamp,
-					consumption: 50 + iterId * 5,
-					production: 0,
-					consumptionSource: "ACTUAL" as SourceEnum,
-					productionSource: "ACTUAL" as SourceEnum,
-				},
-			],
+			unit: "Wh",
+			intervalDuration: "PT15M",
+			values: this.buildIntervalValues(iterId),
 		};
 		return this;
 	}
 
 	withVolumes(iterId: number): this {
-		// Electricity meters typically don't have volumes
-		// This method is implemented for API consistency but volumes are optional
-		// If volumes are needed for electricity, they can be added here
+		const values: VolumeValue[] = this.buildIntervalValues(iterId).map(
+			(v) => ({
+				timestamp: v.timestamp ?? undefined,
+				consumption: v.consumption ?? 0,
+				production: v.production ?? 0,
+				temperatureCorrection: null,
+				caloricValue: null,
+				isPeak: false,
+				consumptionSource: v.consumptionSource ?? "ACTUAL",
+				productionSource: v.productionSource ?? "ACTUAL",
+			}),
+		);
+		this.payload.message.data.volumes = {
+			interval: {
+				unit: "Wh",
+				intervalDuration: "PT15M",
+				values,
+			},
+		};
 		return this;
 	}
 }

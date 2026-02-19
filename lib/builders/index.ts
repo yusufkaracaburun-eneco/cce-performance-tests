@@ -19,6 +19,14 @@ export type {
 	Volumes,
 } from "./base/meter-payload-types.ts";
 export { MeterBuilderFactory } from "./factory/meter-builder-factory.ts";
-export { generateMeterPayload } from "./helpers.ts";
+export {
+	generateMeterPayload,
+	generateElectricityPayload,
+	generateGasPayload,
+	generateElectricityPayloads,
+	generateGasPayloads,
+	generateElectricityExamplePayload,
+	generateGasExamplePayload,
+} from "./helpers.ts";
 export { ElectricityMeterBuilder } from "./strategies/electricity-builder.ts";
 export { GasMeterBuilder } from "./strategies/gas-builder.ts";

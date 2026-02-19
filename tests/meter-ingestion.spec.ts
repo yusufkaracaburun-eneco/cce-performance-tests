@@ -1,19 +1,15 @@
-import { check } from "k6";
 import {
 	type EnvironmentValues,
 	getEnvironmentValues,
 } from "../configs/env.conf.ts";
 import { getOptions } from "../configs/options.conf.ts";
-import { MeterIngestionClient } from "../lib/api/index.ts";
-import { MeterType } from "../lib/builders/base/meter-payload-types.ts";
-import { generateMeterPayload } from "../lib/builders/index.ts";
 import { ErrorHandler } from "../lib/error-handler.ts";
+import { meterIngestionScenario } from "../scenarios/apis/meter-ingestion.ts";
 
-const errorHandler = new ErrorHandler((err) =>
-	console.error(JSON.stringify(err)),
-);
+// Create error handler for this test
+const errorHandler = ErrorHandler.createConsoleLogger();
 
-export const options = getOptions();
+export const options = getOptions("loadHigh");
 
 export function setup(): EnvironmentValues {
 	const environmentValues = getEnvironmentValues();
@@ -23,34 +19,23 @@ export function setup(): EnvironmentValues {
 	return environmentValues;
 }
 
+/**
+ * Meter ingestion test using the reusable scenario.
+ * 
+ * This test delegates to the meterIngestionScenario which implements the VU logic.
+ * The scenario can be reused across different test configurations (smoke, stress, etc.)
+ * and environments (dev, test, acc, prod).
+ */
 export default function meterIngestionTest(data: ReturnType<typeof setup>) {
-	const vuId = __VU;
-	const iterId = __ITER;
-	const client = new MeterIngestionClient(data.baseUrl);
-
-	const payload = generateMeterPayload(vuId, iterId, MeterType.ELECTRICITY);
-	const { data: responseData, res } = client.publish(payload);
-
-	const mainChecks = check(res, {
-		"status is 200 or 2xx": (r) => r.status >= 200 && r.status < 300,
-		"response has body": (r) => {
-			if (r.body === null) return false;
-			if (typeof r.body === "string") return r.body.length > 0;
-			return true;
+	meterIngestionScenario(data.baseUrl, {
+		errorHandler,
+		tags: {
+			test_name: "meter_ingestion",
 		},
-		"response time < 1000ms": (r) => r.timings.duration < 1000,
 	});
-
-	let jsonCheck = true;
-	if (res.status >= 200 && res.status < 300 && responseData != null) {
-		jsonCheck = check(responseData, {
-			"response is valid JSON": () => typeof responseData === "object",
-		});
-	}
-
-	errorHandler.logError(!(mainChecks && jsonCheck), res, { vuId, iterId });
 }
 
 export function teardown(data: ReturnType<typeof setup>) {
-	const testEndTime = new Date().toISOString();
+	// Teardown logic can be added here if needed
+	// For example: cleanup, final reporting, etc.
 }
