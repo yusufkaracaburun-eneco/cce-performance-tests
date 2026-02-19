@@ -33,7 +33,7 @@ export abstract class BaseMeterBuilder {
 
 		// Initialize base payload structure matching ProcessedP4UsagesDayAlignedEvent_v1 schema
 		this.payload = {
-			key: `test-key-${vuId}-${iterId}`,
+			key: `k6-test-key-${vuId}-${iterId}`,
 			message: {
 				eventInstanceId: eventInstanceId,
 				eventName: "ProcessedP4UsagesDayAligned",

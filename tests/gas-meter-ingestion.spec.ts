@@ -25,9 +25,7 @@ export function setup(): EnvironmentValues {
  * This test uses generateGasPayload which produces gas payloads
  * matching the gas example shape (G1A, MTQ/DM3, PT1H, temperature/caloric).
  */
-export default function gasMeterIngestionTest(
-	data: ReturnType<typeof setup>,
-) {
+export default function gasMeterIngestionTest(data: ReturnType<typeof setup>) {
 	gasMeterIngestionScenario(data.baseUrl, {
 		errorHandler,
 		tags: {

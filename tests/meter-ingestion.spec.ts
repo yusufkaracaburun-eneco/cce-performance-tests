@@ -39,3 +39,16 @@ export function teardown(data: ReturnType<typeof setup>) {
 	// Teardown logic can be added here if needed
 	// For example: cleanup, final reporting, etc.
 }
+
+/**
+ * Writes the first generated payload to scenarios/test-data/meter-payload.json
+ * and the default summary to stdout.
+ */
+export function handleSummary(data: unknown) {
+	return {
+		"scenarios/test-data/meter-payload.json":
+			payloadCapture.json ??
+			JSON.stringify({ message: "No payload captured" }),
+		stdout: textSummary(data, { indent: " ", enableColors: true }),
+	};
+}

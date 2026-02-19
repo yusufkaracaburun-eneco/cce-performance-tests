@@ -77,6 +77,7 @@ export function meterIngestionScenario(
 
 	// Generate meter payload
 	const payload = generateMeterPayload(vuId, iterId, meterType);
+	console.info("Payload: ", payload);
 
 	// Prepare tags for HTTP request and checks
 	const requestTags = {
