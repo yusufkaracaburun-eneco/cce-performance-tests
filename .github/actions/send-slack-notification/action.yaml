@@ -1,0 +1,60 @@
+name: 'Send Slack Notification'
+description: 'Send performance test results to Slack'
+
+inputs:
+  test-name:
+    description: 'Name of the test'
+    required: true
+  environment:
+    description: 'Environment that was tested'
+    required: true
+  job-status:
+    description: 'Status of the job (success or failure)'
+    required: true
+  slack-webhook-url:
+    description: 'Slack webhook URL'
+    required: true
+  github-server-url:
+    description: 'GitHub server URL'
+    required: true
+  github-repository:
+    description: 'GitHub repository'
+    required: true
+  github-run-id:
+    description: 'GitHub Actions run ID'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Determine status and color
+      shell: bash
+      run: |
+        if [ "${{ inputs.job-status }}" == "success" ]; then
+          echo "STATUS=✅ Passed" >> $GITHUB_ENV
+          echo "COLOR=good" >> $GITHUB_ENV
+        else
+          echo "STATUS=❌ Failed" >> $GITHUB_ENV
+          echo "COLOR=danger" >> $GITHUB_ENV
+        fi
+
+    - name: Send Slack notification
+      shell: bash
+      env:
+        SLACK_WEBHOOK_URL: ${{ inputs.slack-webhook-url }}
+      run: |
+        TIMESTAMP=$(date +%s)
+        PAYLOAD=$(sed \
+          -e "s/{{COLOR}}/$COLOR/g" \
+          -e "s/{{TEST_NAME}}/${{ inputs.test-name }}/g" \
+          -e "s/{{ENVIRONMENT}}/${{ inputs.environment }}/g" \
+          -e "s/{{STATUS}}/$STATUS/g" \
+          -e "s/{{GITHUB_SERVER_URL}}/${{ inputs.github-server-url }}/g" \
+          -e "s/{{GITHUB_REPOSITORY}}/${{ inputs.github-repository }}/g" \
+          -e "s/{{GITHUB_RUN_ID}}/${{ inputs.github-run-id }}/g" \
+          -e "s/{{TIMESTAMP}}/$TIMESTAMP/g" \
+          "$GITHUB_ACTION_PATH/payload-template.json")
+        
+        curl -X POST -H 'Content-type: application/json' \
+          --data "$PAYLOAD" \
+          $SLACK_WEBHOOK_URL

@@ -1,0 +1,86 @@
+name: Performance Tests
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test (dev, test, acc, prod)'
+        required: false
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - test
+          - acc
+          - prod
+      virtual_users:
+        description: 'Number of virtual users'
+        required: false
+        default: '1'
+        type: string
+      duration:
+        description: 'Test duration (e.g., 30s, 1m, 5m)'
+        required: false
+        default: '30s'
+        type: string
+      tests:
+        description: 'Tests to run (comma-separated, e.g., meter-ingestion,health-check). Leave empty to run all tests.'
+        required: false
+        default: ''
+        type: string
+
+jobs:
+  test:
+    name: ${{ matrix.test-name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - test-name: Meter Ingestion Test
+            test-file: tests/meter-ingestion.spec.ts
+          - test-name: Health Check Test
+            test-file: tests/health-check.spec.ts
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'latest'
+
+      - name: Install xk6
+        run: go install go.k6.io/xk6/cmd/xk6@latest
+
+      - name: Build custom k6 binary with Dynatrace extension
+        run: xk6 build --with github.com/Dynatrace/xk6-output-dynatrace
+
+      - name: Run k6 test (Dynatrace output)
+        id: run-k6-test
+        uses: ./.github/actions/dynatrace
+        with:
+          test-file: ${{ matrix.test-file }}
+          environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+          virtual-users: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.virtual_users || '' }}
+          duration: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.duration || '' }}
+          dynatrace-url: ${{ secrets.K6_DYNATRACE_URL }}
+          dynatrace-api-token: ${{ secrets.K6_DYNATRACE_APITOKEN }}
+          dynatrace-flush-period: ${{ secrets.K6_DYNATRACE_FLUSH_PERIOD }}
+
+      - name: Send Slack notification
+        id: send-slack-notification
+        if: always()
+        uses: ./.github/actions/send-slack-notification
+        with:
+          test-name: ${{ matrix.test-name }}
+          environment: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+          job-status: ${{ job.status }}
+          slack-webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          github-server-url: ${{ github.server_url }}
+          github-repository: ${{ github.repository }}
+          github-run-id: ${{ github.run_id }}

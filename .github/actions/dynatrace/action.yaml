@@ -1,0 +1,46 @@
+name: 'Run Dynatrace k6 Test'
+description: 'Run k6 test with Dynatrace output extension'
+
+inputs:
+  test-file:
+    description: 'Path to the test file'
+    required: true
+  environment:
+    description: 'Environment to test'
+    required: true
+  virtual-users:
+    description: 'Number of virtual users'
+    required: false
+    default: ''
+  duration:
+    description: 'Test duration'
+    required: false
+    default: ''
+  dynatrace-url:
+    description: 'Dynatrace URL'
+    required: true
+  dynatrace-api-token:
+    description: 'Dynatrace API token'
+    required: true
+  dynatrace-flush-period:
+    description: 'Dynatrace flush period'
+    required: false
+    default: ''
+
+runs:
+  using: composite
+  steps:
+    - name: Run dynatrace test
+      shell: bash
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        VIRTUAL_USERS: ${{ inputs.virtual-users }}
+        DURATION: ${{ inputs.duration }}
+        K6_DYNATRACE_URL: ${{ inputs.dynatrace-url }}
+        K6_DYNATRACE_APITOKEN: ${{ inputs.dynatrace-api-token }}
+        K6_DYNATRACE_FLUSH_PERIOD: ${{ inputs.dynatrace-flush-period }}
+      run: |
+        ENV_FLAGS="--env ENVIRONMENT=$ENVIRONMENT"
+        [ -n "$VIRTUAL_USERS" ] && ENV_FLAGS="$ENV_FLAGS --env VIRTUAL_USERS=$VIRTUAL_USERS"
+        [ -n "$DURATION" ] && ENV_FLAGS="$ENV_FLAGS --env DURATION=$DURATION"
+        ./k6 run $ENV_FLAGS ${{ inputs.test-file }} -o output-dynatrace
