@@ -44,7 +44,7 @@ You can run the test suite with plain Docker (no devcontainer). The image includ
 **Build the image:**
 
 ```bash
-docker build -t cce-performance-tests .
+≈
 ```
 
 **Run the default test (meter ingestion):**

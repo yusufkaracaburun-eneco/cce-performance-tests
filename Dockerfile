@@ -22,7 +22,7 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package.json package-lock.json ./
-RUN npm ci
+RUN npm install && npm config set update-notifier false
 
 # Copy application code
 COPY . .

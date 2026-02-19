@@ -27,7 +27,10 @@ export class MeterIngestionClient extends BaseAPIClient {
 			"Content-Type": "application/json",
 		};
 		const body = toPublishBody(payload);
-		const res = http.post(url, JSON.stringify(body), { headers });
+		const res = http.post(url, JSON.stringify(body), { 
+			headers,
+			timeout: __ENV.HTTP_TIMEOUT || "90s",
+		});
 		return {
 			data: this.parseJsonBody<typeof body>(res),
 			res,

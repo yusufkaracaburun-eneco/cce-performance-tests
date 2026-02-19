@@ -16,15 +16,14 @@ const errorHandler = new ErrorHandler((err) =>
 export const options = getOptions();
 
 export function setup(): EnvironmentValues {
-	const options = getEnvironmentValues();
-	console.info(`>>> Meter ingestion test started: ${options.testStartTime}`);
-	return options;
+	const environmentValues = getEnvironmentValues();
+	console.info(`Meter ingestion test started: ${environmentValues.baseUrl}, ${environmentValues.testStartTime}, ${options.vus} virtual users, ${options.duration} duration`);
+	return environmentValues;
 }
 
-export default function (data: ReturnType<typeof setup>) {
+export default function meterIngestionTest(data: ReturnType<typeof setup>) {
 	const vuId = __VU;
 	const iterId = __ITER;
-	console.info(`>>> Meter ingestion test started: ${data.testStartTime}`);
 	const client = new MeterIngestionClient(data.baseUrl);
 
 	const payload = generateMeterPayload(vuId, iterId, MeterType.ELECTRICITY);
@@ -52,7 +51,4 @@ export default function (data: ReturnType<typeof setup>) {
 
 export function teardown(data: ReturnType<typeof setup>) {
 	const testEndTime = new Date().toISOString();
-	console.info(
-		`Meter ingestion test completed. Started: ${data.testStartTime}, Ended: ${testEndTime}`,
-	);
 }
