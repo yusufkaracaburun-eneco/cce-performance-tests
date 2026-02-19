@@ -83,18 +83,40 @@ jobs:
           echo "flags=$FLAGS" >> $GITHUB_OUTPUT
           echo "k6 flags: $FLAGS"
 
-      - name: Run k6 test (Dynatrace output)
+      - name: Prepare report filename
+        id: report-filename
+        run: |
+          # Sanitize test name for filename (replace spaces with hyphens, lowercase)
+          REPORT_NAME=$(echo "${{ matrix.test-name }}" | tr '[:upper:]' '[:lower:]' | tr ' ' '-')
+          REPORT_FILE="reports/k6-report-${REPORT_NAME}.html"
+          echo "filename=$REPORT_FILE" >> $GITHUB_OUTPUT
+          echo "name=$REPORT_NAME" >> $GITHUB_OUTPUT
+          echo "Report will be saved to: $REPORT_FILE"
+
+      - name: Create reports directory
+        run: mkdir -p reports
+
+      - name: Run k6 test
         id: run-k6-test
         uses: grafana/run-k6-action@v1
         env:
           # Dynatrace extension reads these from environment variables (not from --env flags)
           K6_DYNATRACE_URL: ${{ secrets.K6_DYNATRACE_URL }}
           K6_DYNATRACE_APITOKEN: ${{ secrets.K6_DYNATRACE_APITOKEN }}
-          K6_DYNATRACE_FLUSH_PERIOD: ${{ secrets.K6_DYNATRACE_FLUSH_PERIOD }}
+          # HTML report export
+          K6_WEB_DASHBOARD_EXPORT: ${{ steps.report-filename.outputs.filename }}
         with:
           path: ${{ matrix.test-file }}
           flags: ${{ steps.prepare-flags.outputs.flags }}
           debug: true
+
+      - name: Upload HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-report-${{ steps.report-filename.outputs.name }}
+          path: ${{ steps.report-filename.outputs.filename }}
+          retention-days: 30
 
       - name: Send Slack notification
         id: send-slack-notification
@@ -108,3 +130,82 @@ jobs:
           github-server-url: ${{ github.server_url }}
           github-repository: ${{ github.repository }}
           github-run-id: ${{ github.run_id }}
+
+  deploy-pages:
+    name: Deploy Reports to GitHub Pages
+    runs-on: ubuntu-latest
+    needs: test
+    if: always()
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download all reports
+        uses: actions/download-artifact@v4
+        with:
+          path: reports
+
+      - name: Create index page
+        run: |
+          cat > reports/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>k6 Performance Test Reports</title>
+            <style>
+              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 900px; margin: 50px auto; padding: 20px; background: #fafafa; }
+              .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+              h1 { color: #333; margin-top: 0; }
+              .report-list { list-style: none; padding: 0; }
+              .report-item { margin: 15px 0; padding: 20px; background: #f8f9fa; border-radius: 5px; border-left: 4px solid #0366d6; }
+              .report-item a { color: #0366d6; text-decoration: none; font-weight: 600; font-size: 1.1em; }
+              .report-item a:hover { text-decoration: underline; }
+              .meta { color: #666; font-size: 0.9em; margin-top: 8px; }
+              .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e1e4e8; color: #666; font-size: 0.9em; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>📊 k6 Performance Test Reports</h1>
+              <p>Select a test report to view detailed performance metrics and results:</p>
+              <ul class="report-list">
+          EOF
+          
+          # Add links for each report
+          for report in reports/k6-report-*.html; do
+            if [ -f "$report" ]; then
+              filename=$(basename "$report")
+              test_name=$(echo "$filename" | sed 's/k6-report-//' | sed 's/.html//' | tr '-' ' ' | sed 's/\b\(.\)/\u\1/g')
+              file_date=$(stat -c %y "$report" 2>/dev/null | cut -d' ' -f1,2 | cut -d'.' -f1 || date -u +"%Y-%m-%d %H:%M:%S")
+              echo "                <li class=\"report-item\"><a href=\"$filename\">$test_name</a><div class=\"meta\">Generated: $file_date UTC</div></li>" >> reports/index.html
+            fi
+          done
+          
+          cat >> reports/index.html << EOF
+              </ul>
+              <div class="footer">
+                <p>Reports generated automatically by GitHub Actions workflow.</p>
+                <p>Workflow run: <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">#${{ github.run_id }}</a></p>
+              </div>
+            </div>
+          </body>
+          </html>
+          EOF
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: reports
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
