@@ -1,32 +1,32 @@
 {
-  "attachments": [
-    {
-      "color": "{{COLOR}}",
-      "title": "Performance Test Results",
-      "fields": [
-        {
-          "title": "Test",
-          "value": "{{TEST_NAME}}",
-          "short": true
-        },
-        {
-          "title": "Environment",
-          "value": "{{ENVIRONMENT}}",
-          "short": true
-        },
-        {
-          "title": "Status",
-          "value": "{{STATUS}}",
-          "short": true
-        },
-        {
-          "title": "Workflow",
-          "value": "<{{GITHUB_SERVER_URL}}/{{GITHUB_REPOSITORY}}/actions/runs/{{GITHUB_RUN_ID}}|View Run>",
-          "short": true
-        }
-      ],
-      "footer": "GitHub Actions",
-      "ts": "{{TIMESTAMP}}"
-    }
-  ]
+	"attachments": [
+		{
+			"color": "{{COLOR}}",
+			"title": "Performance Test Results",
+			"fields": [
+				{
+					"title": "Test",
+					"value": "{{TEST_NAME}}",
+					"short": true
+				},
+				{
+					"title": "Environment",
+					"value": "{{ENVIRONMENT}}",
+					"short": true
+				},
+				{
+					"title": "Status",
+					"value": "{{STATUS}}",
+					"short": true
+				},
+				{
+					"title": "Workflow",
+					"value": "<{{GITHUB_SERVER_URL}}/{{GITHUB_REPOSITORY}}/actions/runs/{{GITHUB_RUN_ID}}|View Run>",
+					"short": true
+				}
+			],
+			"footer": "GitHub Actions",
+			"ts": "{{TIMESTAMP}}"
+		}
+	]
 }
