@@ -5,31 +5,42 @@ on:
     branches: ['**']
   pull_request:
     branches: ['**']
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to test (dev, test, acc, prod)'
+        required: false
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - test
+          - acc
+          - prod
+      virtual_users:
+        description: 'Number of virtual users'
+        required: false
+        default: '1'
+        type: string
+      duration:
+        description: 'Test duration (e.g., 30s, 1m, 5m)'
+        required: false
+        default: '30s'
+        type: string
 
 jobs:
   test:
-    name: ${{ matrix.test-name }} (${{ matrix.environment }})
+    name: ${{ matrix.test-name }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        environment: [dev, test]
         include:
           - test-name: Meter Ingestion Test
             test-file: tests/meter-ingestion.spec.ts
             needs-custom-binary: false
-            environment: dev
-          - test-name: Meter Ingestion Test
-            test-file: tests/meter-ingestion.spec.ts
-            needs-custom-binary: false
-            environment: test
           - test-name: Health Check Test
             test-file: tests/health-check.spec.ts
             needs-custom-binary: false
-            environment: dev
-          - test-name: Health Check Test
-            test-file: tests/health-check.spec.ts
-            needs-custom-binary: false
-            environment: test
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -55,7 +66,9 @@ jobs:
       - name: Run test
         if: ${{ !matrix.needs-custom-binary }}
         env:
-          ENVIRONMENT: ${{ matrix.environment }}
+          ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+          VIRTUAL_USERS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.virtual_users || '' }}
+          DURATION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.duration || '' }}
         uses: grafana/run-k6-action@v1
         with:
           path: ${{ matrix.test-file }}
@@ -65,11 +78,21 @@ jobs:
       - name: Run dynatrace test
         if: matrix.needs-custom-binary
         env:
-          ENVIRONMENT: ${{ matrix.environment }}
+          ENVIRONMENT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}
+          VIRTUAL_USERS: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.virtual_users || '' }}
+          DURATION: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.duration || '' }}
           K6_DYNATRACE_URL: ${{ secrets.K6_DYNATRACE_URL }}
           K6_DYNATRACE_APITOKEN: ${{ secrets.K6_DYNATRACE_APITOKEN }}
           K6_DYNATRACE_FLUSH_PERIOD: ${{ secrets.K6_DYNATRACE_FLUSH_PERIOD }}
-        run: ./k6 run --env ENVIRONMENT=${{ matrix.environment }} ${{ matrix.test-file }} ${{ matrix.output-flag }}
+        run: |
+          ENV_FLAGS="--env ENVIRONMENT=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}"
+          if [ -n "$VIRTUAL_USERS" ]; then
+            ENV_FLAGS="$ENV_FLAGS --env VIRTUAL_USERS=$VIRTUAL_USERS"
+          fi
+          if [ -n "$DURATION" ]; then
+            ENV_FLAGS="$ENV_FLAGS --env DURATION=$DURATION"
+          fi
+          ./k6 run $ENV_FLAGS ${{ matrix.test-file }} ${{ matrix.output-flag }}
         continue-on-error: true
 
       - name: Send Slack notification
@@ -99,7 +122,7 @@ jobs:
                   },
                   {
                     "title": "Environment",
-                    "value": "${{ matrix.environment }}",
+                    "value": "${{ github.event_name == 'workflow_dispatch' && github.event.inputs.environment || 'dev' }}",
                     "short": true
                   },
                   {
