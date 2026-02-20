@@ -44,7 +44,7 @@ export class ErrorHandler {
 	): void {
 		if (!isError) return;
 
-		const traceparentHeader = res.request?.headers?.["Traceparent"];
+		const traceparentHeader = res.request?.headers?.Traceparent;
 		const traceparent =
 			traceparentHeader != null
 				? Array.isArray(traceparentHeader)

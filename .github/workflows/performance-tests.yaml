@@ -28,6 +28,10 @@ on:
         default: '30s'
         type: string
 
+concurrency:
+  group: performance-tests-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run k6 tests

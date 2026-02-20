@@ -17,20 +17,21 @@ function register(type: EMeterType, Builder: TBuilderConstructor): void {
 register(EMeterType.ELECTRICITY, ElectricityMeterBuilder);
 register(EMeterType.GAS, GasMeterBuilder);
 
-export class MeterBuilderFactory {
-	static register(type: EMeterType, Builder: TBuilderConstructor): void {
-		register(type, Builder);
-	}
+export function registerBuilder(
+	type: EMeterType,
+	Builder: TBuilderConstructor,
+): void {
+	register(type, Builder);
+}
 
-	static create(
-		meterType: EMeterType,
-		vuId: number,
-		iterId: number,
-	): BaseMeterBuilder {
-		const Builder = registry.get(meterType);
-		if (!Builder) {
-			throw new Error(`Unsupported meter type: ${meterType}`);
-		}
-		return new Builder(vuId, iterId);
+export function createMeterBuilder(
+	meterType: EMeterType,
+	vuId: number,
+	iterId: number,
+): BaseMeterBuilder {
+	const Builder = registry.get(meterType);
+	if (!Builder) {
+		throw new Error(`Unsupported meter type: ${meterType}`);
 	}
+	return new Builder(vuId, iterId);
 }

@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"format": "biome format --write .",
-		"lint": "biome lint --write .",
+		"lint": "biome lint --write . --unsafe",
 		"check": "biome check --write .",
 		"test": "k6 run tests/*.spec.ts",
 		"test:meter": "k6 run tests/meter-ingestion.spec.ts",

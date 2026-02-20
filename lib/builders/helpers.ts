@@ -14,7 +14,7 @@ import {
 	EProfileCategoryCode,
 	ESourceEnum,
 } from "./base/meter-payload-types.ts";
-import { MeterBuilderFactory } from "./factory/meter-builder-factory.ts";
+import { createMeterBuilder } from "./factory/meter-builder-factory.ts";
 
 interface IStandardPayloadOptions {
 	readonly profileCategoryCode?: TProfileCategoryCode;
@@ -30,7 +30,7 @@ function buildStandardPayload(
 	iterId: number,
 	options?: IStandardPayloadOptions,
 ): TMeterPayload {
-	const builder = MeterBuilderFactory.create(meterType, vuId, iterId);
+	const builder = createMeterBuilder(meterType, vuId, iterId);
 	const conn = options
 		? builder.withConnectionMetadata(
 				vuId,
