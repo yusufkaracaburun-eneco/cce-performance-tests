@@ -2,6 +2,21 @@
 
 k6 performance tests for ingestion APIs (meter today; contract, market-price, and others can be added). Each test is a **spec** that wires a **scenario** and load profile into a shared **test harness**.
 
+## Table of Contents
+
+- [How the structure works](#how-the-structure-works)
+- [Available tests (domains)](#available-tests-domains)
+- [How to add a new test domain (e.g. contract-ingestion)](#how-to-add-a-new-test-domain-eg-contract-ingestion)
+  - [1. API client](#1-api-client-libapicontract-ingestion-clientts)
+  - [2. Payload types and builders](#2-payload-types-and-builders-libbuilderscontract-or-similar)
+  - [3. Scenario](#3-scenario-scenariosapiscontract-ingestionts)
+  - [4. Spec](#4-spec-testscontract-ingestionspects)
+  - [5. npm script](#5-npm-script-packagejson)
+  - [6. Optional: domain-specific scenario options](#6-optional-domain-specific-scenario-options)
+- [Running tests](#running-tests)
+- [Config and env](#config-and-env)
+- [Tags](#tags)
+
 ## How the structure works
 
 ```text
