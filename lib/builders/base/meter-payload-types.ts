@@ -1,13 +1,13 @@
 // TypeScript interfaces and types for meter payloads
 // Based on ProcessedP4UsagesDayAlignedEvent_v1 Avro schema
 
-export enum MeterType {
+export enum EMeterType {
 	ELECTRICITY = "electricity",
 	GAS = "gas",
 }
 
 // Enums from the schema
-export type ProfileCategoryCode =
+export type TProfileCategoryCode =
 	| "E1A"
 	| "E1B"
 	| "E2A"
@@ -23,18 +23,18 @@ export type ProfileCategoryCode =
 	| "GXX"
 	| "GGV";
 
-export type DeterminedEnergyConsumption = "AMI" | "AZI";
+export type TDeterminedEnergyConsumption = "AMI" | "AZI";
 
-export type EnecoLabel =
+export type TEnecoLabel =
 	| "eneco"
 	| "oxxio"
 	| "woonenergie"
 	| "UNDEFINED"
 	| "enecobusiness";
 
-export type CommodityEnum = "E" | "G";
+export type TCommodityEnum = "E" | "G";
 
-export type SourceEnum =
+export type TSourceEnum =
 	| "ACTUAL"
 	| "ESTIMATED"
 	| "CORRECTED"
@@ -47,8 +47,8 @@ export interface IConnectionMetadata {
 	countryCode?: string | null;
 	gridOperatorEAN?: string | null;
 	supplierEAN?: string | null;
-	profileCategoryCode?: ProfileCategoryCode | null;
-	determinedEnergyConsumption?: DeterminedEnergyConsumption | null;
+	profileCategoryCode?: TProfileCategoryCode | null;
+	determinedEnergyConsumption?: TDeterminedEnergyConsumption | null;
 	isDualTariffMeter?: boolean | null;
 }
 
@@ -64,8 +64,8 @@ export interface IUsagePeriod {
 export interface IDayReadingValue {
 	start?: number | null;
 	end?: number | null;
-	startSource?: SourceEnum | null;
-	endSource?: SourceEnum | null;
+	startSource?: TSourceEnum | null;
+	endSource?: TSourceEnum | null;
 	isPeak?: boolean | null;
 	injection?: boolean | null;
 	temperatureCorrection?: number | null;
@@ -84,8 +84,8 @@ export interface IIntervalReadingValue {
 	timestamp?: string | null;
 	consumption?: number | null;
 	production?: number | null;
-	consumptionSource?: SourceEnum | null;
-	productionSource?: SourceEnum | null;
+	consumptionSource?: TSourceEnum | null;
+	productionSource?: TSourceEnum | null;
 	isPeak?: boolean | null;
 	temperatureCorrection?: number | null;
 	caloricValue?: number | null;
@@ -112,8 +112,8 @@ export interface IVolumeValue {
 	temperatureCorrection?: number | null;
 	caloricValue?: number | null;
 	isPeak?: boolean | null; // Required in API conversion, default: false
-	consumptionSource?: SourceEnum | null;
-	productionSource?: SourceEnum | null;
+	consumptionSource?: TSourceEnum | null;
+	productionSource?: TSourceEnum | null;
 }
 
 /** Avro data.volume (VolumeRecord): unit (e.g. Wh, DM3), intervalDuration (e.g. PT15M, PT1H), values. */
@@ -127,8 +127,8 @@ export interface IVolumes {
 
 export interface IMeterData {
 	connectionMetadata?: IConnectionMetadata | null;
-	label: EnecoLabel; // Required, default: "UNDEFINED"
-	commodity?: CommodityEnum | null;
+	label: TEnecoLabel; // Required, default: "UNDEFINED"
+	commodity?: TCommodityEnum | null;
 	mandateCodes?: string[] | null;
 	usagePeriod?: IUsagePeriod | null;
 	readings?: IReadings | null;

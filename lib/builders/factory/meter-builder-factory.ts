@@ -1,5 +1,5 @@
 import type { BaseMeterBuilder } from "../base/base-meter-builder.ts";
-import { MeterType } from "../base/meter-payload-types.ts";
+import { EMeterType } from "../base/meter-payload-types.ts";
 import { ElectricityMeterBuilder } from "../strategies/electricity-builder.ts";
 import { GasMeterBuilder } from "../strategies/gas-builder.ts";
 
@@ -8,22 +8,22 @@ type BuilderConstructor = new (
 	iterId: number,
 ) => BaseMeterBuilder;
 
-const registry = new Map<MeterType, BuilderConstructor>();
+const registry = new Map<EMeterType, BuilderConstructor>();
 
-function register(type: MeterType, Builder: BuilderConstructor): void {
+function register(type: EMeterType, Builder: BuilderConstructor): void {
 	registry.set(type, Builder);
 }
 
-register(MeterType.ELECTRICITY, ElectricityMeterBuilder);
-register(MeterType.GAS, GasMeterBuilder);
+register(EMeterType.ELECTRICITY, ElectricityMeterBuilder);
+register(EMeterType.GAS, GasMeterBuilder);
 
 export class MeterBuilderFactory {
-	static register(type: MeterType, Builder: BuilderConstructor): void {
+	static register(type: EMeterType, Builder: BuilderConstructor): void {
 		register(type, Builder);
 	}
 
 	static create(
-		meterType: MeterType,
+		meterType: EMeterType,
 		vuId: number,
 		iterId: number,
 	): BaseMeterBuilder {

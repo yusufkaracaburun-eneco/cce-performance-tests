@@ -1,24 +1,24 @@
 // Example payloads use .0 suffixes to match example JSON; zero-fraction lint is intentional.
 
 import type {
-	DeterminedEnergyConsumption,
-	EnecoLabel,
-	ProfileCategoryCode,
+	TDeterminedEnergyConsumption,
+	TEnecoLabel,
+	TProfileCategoryCode,
 	TMeterPayload,
 } from "./base/meter-payload-types.ts";
-import { MeterType } from "./base/meter-payload-types.ts";
+import { EMeterType } from "./base/meter-payload-types.ts";
 import { MeterBuilderFactory } from "./factory/meter-builder-factory.ts";
 
 interface IStandardPayloadOptions {
-	readonly profileCategoryCode?: ProfileCategoryCode;
-	readonly determinedEnergyConsumption?: DeterminedEnergyConsumption;
+	readonly profileCategoryCode?: TProfileCategoryCode;
+	readonly determinedEnergyConsumption?: TDeterminedEnergyConsumption;
 	readonly isDualTariffMeter?: boolean | null;
-	readonly label?: EnecoLabel;
+	readonly label?: TEnecoLabel;
 }
 
 /** Standard builder chain: connection metadata, label, mandate codes, usage period, readings, volumes. */
 function buildStandardPayload(
-	meterType: MeterType,
+	meterType: EMeterType,
 	vuId: number,
 	iterId: number,
 	options?: IStandardPayloadOptions,
@@ -48,7 +48,7 @@ function buildStandardPayload(
 export function generateMeterPayload(
 	vuId: number,
 	iterId: number,
-	meterType: MeterType = MeterType.ELECTRICITY,
+	meterType: EMeterType = EMeterType.ELECTRICITY,
 ): TMeterPayload {
 	return buildStandardPayload(meterType, vuId, iterId);
 }
@@ -58,7 +58,7 @@ export function generateElectricityPayload(
 	vuId: number,
 	iterId: number,
 ): TMeterPayload {
-	return buildStandardPayload(MeterType.ELECTRICITY, vuId, iterId, {
+	return buildStandardPayload(EMeterType.ELECTRICITY, vuId, iterId, {
 		profileCategoryCode: "E1B",
 		determinedEnergyConsumption: "AZI",
 		isDualTariffMeter: true,
@@ -67,8 +67,11 @@ export function generateElectricityPayload(
 }
 
 /** Gas payload: G1A, MTQ/DM3, PT1H, temperature/caloric. */
-export function generateGasPayload(vuId: number, iterId: number): TMeterPayload {
-	return buildStandardPayload(MeterType.GAS, vuId, iterId, { label: "eneco" });
+export function generateGasPayload(
+	vuId: number,
+	iterId: number,
+): TMeterPayload {
+	return buildStandardPayload(EMeterType.GAS, vuId, iterId, { label: "eneco" });
 }
 
 /** Exact match to ProcessedP4UsagesDayAlignedEvent_elec_example.json. */

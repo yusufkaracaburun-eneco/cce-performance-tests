@@ -3,8 +3,8 @@
 
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import type {
-	ProfileCategoryCode,
-	SourceEnum,
+	TProfileCategoryCode,
+	TSourceEnum,
 	TVolumeValue,
 } from "../base/meter-payload-types.ts";
 
@@ -19,7 +19,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 		return "MTQ"; // Gas reading unit per Avro example
 	}
 
-	getDefaultProfileCategoryCode(): ProfileCategoryCode {
+	getDefaultProfileCategoryCode(): TProfileCategoryCode {
 		return "G1A";
 	}
 
@@ -43,8 +43,8 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 				{
 					start: 2455 + iterId,
 					end: 2460 + iterId,
-					startSource: "ACTUAL" as SourceEnum,
-					endSource: "ACTUAL" as SourceEnum,
+					startSource: "ACTUAL" as TSourceEnum,
+					endSource: "ACTUAL" as TSourceEnum,
 					temperatureCorrection: 0,
 					caloricValue: GAS_CALORIC_VALUE,
 					isPeak: null,
@@ -92,7 +92,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 				temperatureCorrection: 0,
 				caloricValue: GAS_CALORIC_VALUE,
 				isPeak: null,
-				consumptionSource: "ACTUAL" as SourceEnum,
+				consumptionSource: "ACTUAL" as TSourceEnum,
 				productionSource: null,
 			},
 			{
@@ -102,7 +102,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 				temperatureCorrection: 0,
 				caloricValue: GAS_CALORIC_VALUE,
 				isPeak: null,
-				consumptionSource: "ACTUAL" as SourceEnum,
+				consumptionSource: "ACTUAL" as TSourceEnum,
 				productionSource: null,
 			},
 		];

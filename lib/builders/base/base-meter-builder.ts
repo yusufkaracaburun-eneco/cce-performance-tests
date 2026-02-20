@@ -3,9 +3,9 @@
 
 import { uuidv4 } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
 import type {
-	DeterminedEnergyConsumption,
-	EnecoLabel,
-	ProfileCategoryCode,
+	TDeterminedEnergyConsumption,
+	TEnecoLabel,
+	TProfileCategoryCode,
 	TMeterPayload,
 } from "./meter-payload-types.ts";
 
@@ -55,8 +55,8 @@ export abstract class BaseMeterBuilder {
 	withConnectionMetadata(
 		vuId: number,
 		iterId: number,
-		profileCategoryCode?: ProfileCategoryCode,
-		determinedEnergyConsumption: DeterminedEnergyConsumption = "AMI",
+		profileCategoryCode?: TProfileCategoryCode,
+		determinedEnergyConsumption: TDeterminedEnergyConsumption = "AMI",
 		isDualTariffMeter?: boolean | null,
 	): this {
 		this.payload.message.data.connectionMetadata = {
@@ -74,7 +74,7 @@ export abstract class BaseMeterBuilder {
 		return this;
 	}
 
-	withLabelAndCommodity(label?: EnecoLabel, commodity?: string): this {
+	withLabelAndCommodity(label?: TEnecoLabel, commodity?: string): this {
 		if (label !== undefined) {
 			this.payload.message.data.label = label;
 		}
@@ -107,7 +107,7 @@ export abstract class BaseMeterBuilder {
 	abstract withVolumes(iterId: number): this;
 	abstract getCommodityEnum(): "E" | "G";
 	abstract getUnit(): string;
-	abstract getDefaultProfileCategoryCode(): ProfileCategoryCode;
+	abstract getDefaultProfileCategoryCode(): TProfileCategoryCode;
 
 	// Build method - returns final payload
 	build(): TMeterPayload {

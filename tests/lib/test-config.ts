@@ -9,7 +9,10 @@ export type TLoadProfile =
 	| "loadHigh"
 	| undefined;
 
-export type { IScenarioOptions, TScenarioOptions } from "../../scenarios/apis/shared/types.ts";
+export type {
+	IScenarioOptions,
+	TScenarioOptions,
+} from "../../scenarios/apis/shared/types.ts";
 
 /** Generic scenario signature: any domain can plug in (meter, contract, market-price, etc.). */
 export type TScenarioFunction = (

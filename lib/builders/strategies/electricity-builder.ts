@@ -3,8 +3,8 @@
 
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import type {
-	ProfileCategoryCode,
-	SourceEnum,
+	TProfileCategoryCode,
+	TSourceEnum,
 	TIntervalReadingValue,
 	TVolumeValue,
 } from "../base/meter-payload-types.ts";
@@ -21,7 +21,7 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 		return "kWh";
 	}
 
-	getDefaultProfileCategoryCode(): ProfileCategoryCode {
+	getDefaultProfileCategoryCode(): TProfileCategoryCode {
 		return "E1B"; // Match example; dual-tariff typical
 	}
 
@@ -41,8 +41,8 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 			timestamp: `${date}T${time}:00.000${offset}`,
 			consumption: consumption + iterId + i,
 			production: 0,
-			consumptionSource: "ACTUAL" as SourceEnum,
-			productionSource: "ACTUAL" as SourceEnum,
+			consumptionSource: "ACTUAL" as TSourceEnum,
+			productionSource: "ACTUAL" as TSourceEnum,
 			isPeak: false,
 			temperatureCorrection: null,
 			caloricValue: null,
@@ -60,16 +60,16 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 				{
 					start: ELEC_DAY_OFFSET + iterId * 100,
 					end: ELEC_DAY_OFFSET + 2000 + iterId * 100,
-					startSource: "CORRECTED" as SourceEnum,
-					endSource: "ACTUAL" as SourceEnum,
+					startSource: "CORRECTED" as TSourceEnum,
+					endSource: "ACTUAL" as TSourceEnum,
 					isPeak: true,
 					injection: false,
 				},
 				{
 					start: ELEC_DAY_OFFSET_2 + iterId * 10,
 					end: ELEC_DAY_OFFSET_2 + 1000 + iterId * 10,
-					startSource: "CORRECTED" as SourceEnum,
-					endSource: "ACTUAL" as SourceEnum,
+					startSource: "CORRECTED" as TSourceEnum,
+					endSource: "ACTUAL" as TSourceEnum,
 					temperatureCorrection: null,
 					caloricValue: null,
 					isPeak: false,
@@ -93,16 +93,18 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	}
 
 	withVolumes(iterId: number): this {
-		const values: TVolumeValue[] = this.buildIntervalValues(iterId).map((v) => ({
-			timestamp: v.timestamp ?? undefined,
-			consumption: v.consumption ?? 0,
-			production: v.production ?? 0,
-			temperatureCorrection: null,
-			caloricValue: null,
-			isPeak: false,
-			consumptionSource: v.consumptionSource ?? "ACTUAL",
-			productionSource: v.productionSource ?? "ACTUAL",
-		}));
+		const values: TVolumeValue[] = this.buildIntervalValues(iterId).map(
+			(v) => ({
+				timestamp: v.timestamp ?? undefined,
+				consumption: v.consumption ?? 0,
+				production: v.production ?? 0,
+				temperatureCorrection: null,
+				caloricValue: null,
+				isPeak: false,
+				consumptionSource: v.consumptionSource ?? "ACTUAL",
+				productionSource: v.productionSource ?? "ACTUAL",
+			}),
+		);
 		this.payload.message.data.volumes = {
 			interval: {
 				unit: "Wh",

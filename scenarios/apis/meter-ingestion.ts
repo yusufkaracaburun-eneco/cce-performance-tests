@@ -1,6 +1,6 @@
 import { MeterIngestionClient } from "../../lib/api/index.ts";
 import type { TMeterPayload } from "../../lib/builders/base/meter-payload-types.ts";
-import { MeterType } from "../../lib/builders/base/meter-payload-types.ts";
+import { EMeterType } from "../../lib/builders/base/meter-payload-types.ts";
 import {
 	generateElectricityExamplePayload,
 	generateGasExamplePayload,
@@ -11,11 +11,11 @@ import type { TMeterIngestionScenarioOptions } from "./shared/types.ts";
 
 export type { TMeterIngestionScenarioOptions } from "./shared/types.ts";
 
-type PayloadGenerator = (meterType: MeterType) => TMeterPayload;
+type PayloadGenerator = (meterType: EMeterType) => TMeterPayload;
 
 function createMeterIngestionScenario(
 	payloadGenerator: PayloadGenerator,
-	defaultMeterType: MeterType = MeterType.ELECTRICITY,
+	defaultMeterType: EMeterType = EMeterType.ELECTRICITY,
 	logPayload: boolean = false,
 ) {
 	return function meterIngestionScenario(
@@ -39,16 +39,16 @@ function createMeterIngestionScenario(
 
 export const meterIngestionScenario = createMeterIngestionScenario(
 	(meterType) => generateMeterPayload(__VU, __ITER, meterType),
-	MeterType.ELECTRICITY,
+	EMeterType.ELECTRICITY,
 );
 
 export const electricityMeterIngestionExampleScenario =
 	createMeterIngestionScenario(
 		(_meterType) => generateElectricityExamplePayload(),
-		MeterType.ELECTRICITY,
+		EMeterType.ELECTRICITY,
 	);
 
 export const gasMeterIngestionExampleScenario = createMeterIngestionScenario(
 	(_meterType) => generateGasExamplePayload(),
-	MeterType.GAS,
+	EMeterType.GAS,
 );

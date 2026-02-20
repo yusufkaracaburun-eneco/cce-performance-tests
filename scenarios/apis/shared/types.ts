@@ -1,4 +1,4 @@
-import type { MeterType } from "../../../lib/builders/base/meter-payload-types.ts";
+import type { EMeterType } from "../../../lib/builders/base/meter-payload-types.ts";
 import type { ErrorHandler } from "../../../lib/error-handler.ts";
 
 /** Shared options for any ingestion scenario (used by test harness). */
@@ -9,7 +9,7 @@ export interface IScenarioOptions {
 
 /** Options for the meter ingestion scenario (IScenarioOptions + meterType). */
 export interface IMeterIngestionScenarioOptions extends IScenarioOptions {
-	readonly meterType?: MeterType;
+	readonly meterType?: EMeterType;
 }
 
 export type TScenarioOptions = IScenarioOptions;

@@ -10,7 +10,10 @@ export type TPublishResult = {
 };
 
 export class MeterIngestionClient extends BaseAPIClient {
-	publish(payload: TMeterPayload, tags?: Record<string, string>): TPublishResult {
+	publish(
+		payload: TMeterPayload,
+		tags?: Record<string, string>,
+	): TPublishResult {
 		const url = `${this.baseUrl}/Publish`;
 		const body = toPublishBody(payload);
 		const res = http.post(url, JSON.stringify(body), {
