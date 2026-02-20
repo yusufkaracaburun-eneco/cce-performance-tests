@@ -2,17 +2,21 @@
 // Produces payloads matching ProcessedP4UsagesDayAlignedEvent_gas_example (MTQ reading, DM3 volume, PT1H)
 
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
-import type {
-	TProfileCategoryCode,
-	TSourceEnum,
-	TVolumeValue,
+import {
+	EProfileCategoryCode,
+	ECommodityEnum,
+	ESourceEnum,
+	type TProfileCategoryCode,
+	type TCommodityEnum,
+	type TSourceEnum,
+	type TVolumeValue,
 } from "../base/meter-payload-types.ts";
 
 const GAS_CALORIC_VALUE = 31.649999618530273;
 
 export class GasMeterBuilder extends BaseMeterBuilder {
-	getCommodityEnum(): "G" {
-		return "G";
+	getCommodityEnum(): TCommodityEnum {
+		return ECommodityEnum.G;
 	}
 
 	getUnit(): string {
@@ -20,7 +24,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 	}
 
 	getDefaultProfileCategoryCode(): TProfileCategoryCode {
-		return "G1A";
+		return EProfileCategoryCode.G1A;
 	}
 
 	override withUsagePeriod(): this {
@@ -43,8 +47,8 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 				{
 					start: 2455 + iterId,
 					end: 2460 + iterId,
-					startSource: "ACTUAL" as TSourceEnum,
-					endSource: "ACTUAL" as TSourceEnum,
+					startSource: ESourceEnum.ACTUAL,
+					endSource: ESourceEnum.ACTUAL,
 					temperatureCorrection: 0,
 					caloricValue: GAS_CALORIC_VALUE,
 					isPeak: null,
@@ -92,7 +96,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 				temperatureCorrection: 0,
 				caloricValue: GAS_CALORIC_VALUE,
 				isPeak: null,
-				consumptionSource: "ACTUAL" as TSourceEnum,
+				consumptionSource: ESourceEnum.ACTUAL,
 				productionSource: null,
 			},
 			{
@@ -102,7 +106,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 				temperatureCorrection: 0,
 				caloricValue: GAS_CALORIC_VALUE,
 				isPeak: null,
-				consumptionSource: "ACTUAL" as TSourceEnum,
+				consumptionSource: ESourceEnum.ACTUAL,
 				productionSource: null,
 			},
 		];

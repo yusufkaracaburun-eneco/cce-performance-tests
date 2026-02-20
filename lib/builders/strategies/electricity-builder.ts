@@ -2,19 +2,23 @@
 // Produces payloads matching ProcessedP4UsagesDayAlignedEvent_elec_example (kWh day readings, Wh interval/volume)
 
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
-import type {
-	TProfileCategoryCode,
-	TSourceEnum,
-	TIntervalReadingValue,
-	TVolumeValue,
+import {
+	EProfileCategoryCode,
+	ECommodityEnum,
+	ESourceEnum,
+	type TProfileCategoryCode,
+	type TCommodityEnum,
+	type TSourceEnum,
+	type TIntervalReadingValue,
+	type TVolumeValue,
 } from "../base/meter-payload-types.ts";
 
 const ELEC_DAY_OFFSET = 6_395_000;
 const ELEC_DAY_OFFSET_2 = 5_610_000;
 
 export class ElectricityMeterBuilder extends BaseMeterBuilder {
-	getCommodityEnum(): "E" {
-		return "E";
+	getCommodityEnum(): TCommodityEnum {
+		return ECommodityEnum.E;
 	}
 
 	getUnit(): string {
@@ -22,7 +26,7 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	}
 
 	getDefaultProfileCategoryCode(): TProfileCategoryCode {
-		return "E1B"; // Match example; dual-tariff typical
+		return EProfileCategoryCode.E1B; // Match example; dual-tariff typical
 	}
 
 	/** Build interval/volume values for the usage day (15-min slots, Wh). */
@@ -41,8 +45,8 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 			timestamp: `${date}T${time}:00.000${offset}`,
 			consumption: consumption + iterId + i,
 			production: 0,
-			consumptionSource: "ACTUAL" as TSourceEnum,
-			productionSource: "ACTUAL" as TSourceEnum,
+			consumptionSource: ESourceEnum.ACTUAL,
+			productionSource: ESourceEnum.ACTUAL,
 			isPeak: false,
 			temperatureCorrection: null,
 			caloricValue: null,
@@ -60,16 +64,16 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 				{
 					start: ELEC_DAY_OFFSET + iterId * 100,
 					end: ELEC_DAY_OFFSET + 2000 + iterId * 100,
-					startSource: "CORRECTED" as TSourceEnum,
-					endSource: "ACTUAL" as TSourceEnum,
+					startSource: ESourceEnum.CORRECTED,
+					endSource: ESourceEnum.ACTUAL,
 					isPeak: true,
 					injection: false,
 				},
 				{
 					start: ELEC_DAY_OFFSET_2 + iterId * 10,
 					end: ELEC_DAY_OFFSET_2 + 1000 + iterId * 10,
-					startSource: "CORRECTED" as TSourceEnum,
-					endSource: "ACTUAL" as TSourceEnum,
+					startSource: ESourceEnum.CORRECTED,
+					endSource: ESourceEnum.ACTUAL,
 					temperatureCorrection: null,
 					caloricValue: null,
 					isPeak: false,
@@ -101,8 +105,8 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 				temperatureCorrection: null,
 				caloricValue: null,
 				isPeak: false,
-				consumptionSource: v.consumptionSource ?? "ACTUAL",
-				productionSource: v.productionSource ?? "ACTUAL",
+				consumptionSource: v.consumptionSource ?? ESourceEnum.ACTUAL,
+				productionSource: v.productionSource ?? ESourceEnum.ACTUAL,
 			}),
 		);
 		this.payload.message.data.volumes = {

@@ -2,11 +2,15 @@
 // Shared common structure with meter-specific implementations
 
 import { uuidv4 } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
-import type {
-	TDeterminedEnergyConsumption,
-	TEnecoLabel,
-	TProfileCategoryCode,
-	TMeterPayload,
+import {
+	EDeterminedEnergyConsumption,
+	EEnecoLabel,
+	ECommodityEnum,
+	type TDeterminedEnergyConsumption,
+	type TEnecoLabel,
+	type TCommodityEnum,
+	type TProfileCategoryCode,
+	type TMeterPayload,
 } from "./meter-payload-types.ts";
 
 export abstract class BaseMeterBuilder {
@@ -43,7 +47,7 @@ export abstract class BaseMeterBuilder {
 				eventReason: "NEW_READING_RECEIVED",
 				containsPrivacyData: false,
 				data: {
-					label: "UNDEFINED",
+					label: EEnecoLabel.UNDEFINED,
 					commodity: this.getCommodityEnum(),
 					updatedAt: this.updatedAt,
 				},
@@ -56,7 +60,7 @@ export abstract class BaseMeterBuilder {
 		vuId: number,
 		iterId: number,
 		profileCategoryCode?: TProfileCategoryCode,
-		determinedEnergyConsumption: TDeterminedEnergyConsumption = "AMI",
+		determinedEnergyConsumption: TDeterminedEnergyConsumption = EDeterminedEnergyConsumption.AMI,
 		isDualTariffMeter?: boolean | null,
 	): this {
 		this.payload.message.data.connectionMetadata = {
@@ -79,7 +83,7 @@ export abstract class BaseMeterBuilder {
 			this.payload.message.data.label = label;
 		}
 		if (commodity !== undefined) {
-			this.payload.message.data.commodity = commodity as "E" | "G";
+			this.payload.message.data.commodity = commodity as TCommodityEnum;
 		}
 		return this;
 	}
@@ -105,7 +109,7 @@ export abstract class BaseMeterBuilder {
 	abstract withDayReadings(iterId: number): this;
 	abstract withIntervalReadings(iterId: number): this;
 	abstract withVolumes(iterId: number): this;
-	abstract getCommodityEnum(): "E" | "G";
+	abstract getCommodityEnum(): TCommodityEnum;
 	abstract getUnit(): string;
 	abstract getDefaultProfileCategoryCode(): TProfileCategoryCode;
 

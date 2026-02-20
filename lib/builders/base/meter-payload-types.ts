@@ -6,40 +6,61 @@ export enum EMeterType {
 	GAS = "gas",
 }
 
+export type TMeterType = EMeterType;
+
 // Enums from the schema
-export type TProfileCategoryCode =
-	| "E1A"
-	| "E1B"
-	| "E2A"
-	| "E2B"
-	| "E3A"
-	| "E3B"
-	| "E4A"
-	| "E4B"
-	| "G1A"
-	| "G2A"
-	| "G2B"
-	| "G2C"
-	| "GXX"
-	| "GGV";
+export enum EProfileCategoryCode {
+	E1A = "E1A",
+	E1B = "E1B",
+	E2A = "E2A",
+	E2B = "E2B",
+	E3A = "E3A",
+	E3B = "E3B",
+	E4A = "E4A",
+	E4B = "E4B",
+	G1A = "G1A",
+	G2A = "G2A",
+	G2B = "G2B",
+	G2C = "G2C",
+	GXX = "GXX",
+	GGV = "GGV",
+}
 
-export type TDeterminedEnergyConsumption = "AMI" | "AZI";
+export type TProfileCategoryCode = EProfileCategoryCode;
 
-export type TEnecoLabel =
-	| "eneco"
-	| "oxxio"
-	| "woonenergie"
-	| "UNDEFINED"
-	| "enecobusiness";
+export enum EDeterminedEnergyConsumption {
+	AMI = "AMI",
+	AZI = "AZI",
+}
 
-export type TCommodityEnum = "E" | "G";
+export type TDeterminedEnergyConsumption = EDeterminedEnergyConsumption;
 
-export type TSourceEnum =
-	| "ACTUAL"
-	| "ESTIMATED"
-	| "CORRECTED"
-	| "MANUAL"
-	| "UNDEFINED";
+export enum EEnecoLabel {
+	ENECO = "eneco",
+	OXXIO = "oxxio",
+	WOONENERGIE = "woonenergie",
+	UNDEFINED = "UNDEFINED",
+	ENECOBUSINESS = "enecobusiness",
+}
+
+export type TEnecoLabel = EEnecoLabel;
+
+export enum ECommodityEnum {
+	E = "E",
+	G = "G",
+}
+
+export type TCommodityEnum = ECommodityEnum;
+
+export enum ESourceEnum {
+	ACTUAL = "ACTUAL",
+	ESTIMATED = "ESTIMATED",
+	CORRECTED = "CORRECTED",
+	MANUAL = "MANUAL",
+	UNDEFINED = "UNDEFINED",
+}
+
+export type TSourceEnum = ESourceEnum;
 
 /** Avro: data.connectionMetadata (ConnectionMetaData). */
 export interface IConnectionMetadata {

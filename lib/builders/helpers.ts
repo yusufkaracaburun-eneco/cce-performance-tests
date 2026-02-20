@@ -6,7 +6,14 @@ import type {
 	TProfileCategoryCode,
 	TMeterPayload,
 } from "./base/meter-payload-types.ts";
-import { EMeterType } from "./base/meter-payload-types.ts";
+import {
+	EMeterType,
+	EProfileCategoryCode,
+	EDeterminedEnergyConsumption,
+	EEnecoLabel,
+	ECommodityEnum,
+	ESourceEnum,
+} from "./base/meter-payload-types.ts";
 import { MeterBuilderFactory } from "./factory/meter-builder-factory.ts";
 
 interface IStandardPayloadOptions {
@@ -29,7 +36,7 @@ function buildStandardPayload(
 				vuId,
 				iterId,
 				options.profileCategoryCode,
-				options.determinedEnergyConsumption ?? "AMI",
+				options.determinedEnergyConsumption ?? EDeterminedEnergyConsumption.AMI,
 				options.isDualTariffMeter,
 			)
 		: builder.withConnectionMetadata(vuId, iterId);
@@ -59,10 +66,10 @@ export function generateElectricityPayload(
 	iterId: number,
 ): TMeterPayload {
 	return buildStandardPayload(EMeterType.ELECTRICITY, vuId, iterId, {
-		profileCategoryCode: "E1B",
-		determinedEnergyConsumption: "AZI",
+		profileCategoryCode: EProfileCategoryCode.E1B,
+		determinedEnergyConsumption: EDeterminedEnergyConsumption.AZI,
 		isDualTariffMeter: true,
-		label: "eneco",
+		label: EEnecoLabel.ENECO,
 	});
 }
 
@@ -71,7 +78,7 @@ export function generateGasPayload(
 	vuId: number,
 	iterId: number,
 ): TMeterPayload {
-	return buildStandardPayload(EMeterType.GAS, vuId, iterId, { label: "eneco" });
+	return buildStandardPayload(EMeterType.GAS, vuId, iterId, { label: EEnecoLabel.ENECO });
 }
 
 /** Exact match to ProcessedP4UsagesDayAlignedEvent_elec_example.json. */
@@ -92,12 +99,12 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 					countryCode: "NL",
 					gridOperatorEAN: "8716892000005",
 					supplierEAN: "8714252007107",
-					profileCategoryCode: "E1B",
-					determinedEnergyConsumption: "AZI",
+					profileCategoryCode: EProfileCategoryCode.E1B,
+					determinedEnergyConsumption: EDeterminedEnergyConsumption.AZI,
 					isDualTariffMeter: true,
 				},
-				label: "eneco",
-				commodity: "E",
+				label: EEnecoLabel.ENECO,
+				commodity: ECommodityEnum.E,
 				mandateCodes: ["INT_EN", "ISMA_EN"],
 				usagePeriod: {
 					date: "2026-01-23",
@@ -113,8 +120,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								start: 6395000.0,
 								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								end: 6397000.0,
-								startSource: "CORRECTED",
-								endSource: "ACTUAL",
+								startSource: ESourceEnum.CORRECTED,
+								endSource: ESourceEnum.ACTUAL,
 								isPeak: true,
 								injection: false,
 							},
@@ -123,8 +130,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								start: 5610000.0,
 								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								end: 5611000.0,
-								startSource: "CORRECTED",
-								endSource: "ACTUAL",
+								startSource: ESourceEnum.CORRECTED,
+								endSource: ESourceEnum.ACTUAL,
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
@@ -145,8 +152,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 							{
 								timestamp: "2026-01-23T00:15:00.000+0100",
@@ -157,8 +164,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 							{
 								timestamp: "2026-01-23T23:30:00.000+0100",
@@ -169,8 +176,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 							{
 								timestamp: "2026-01-23T23:45:00.000+0100",
@@ -181,8 +188,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 						],
 					},
@@ -201,8 +208,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 							{
 								timestamp: "2026-01-23T00:15:00.000+0100",
@@ -213,8 +220,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 							{
 								timestamp: "2026-01-23T23:30:00.000+0100",
@@ -225,8 +232,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 							{
 								timestamp: "2026-01-23T23:45:00.000+0100",
@@ -237,8 +244,8 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								temperatureCorrection: null,
 								caloricValue: null,
 								isPeak: false,
-								consumptionSource: "ACTUAL",
-								productionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
+								productionSource: ESourceEnum.ACTUAL,
 							},
 						],
 					},
@@ -267,12 +274,12 @@ export function generateGasExamplePayload(): TMeterPayload {
 					countryCode: "NL",
 					gridOperatorEAN: "8716912XXXXX",
 					supplierEAN: "8717185XXXXX",
-					profileCategoryCode: "G1A",
+					profileCategoryCode: EProfileCategoryCode.G1A,
 					determinedEnergyConsumption: null,
 					isDualTariffMeter: null,
 				},
-				label: "eneco",
-				commodity: "G",
+				label: EEnecoLabel.ENECO,
+				commodity: ECommodityEnum.G,
 				mandateCodes: ["DP_INTE_EN", "DP_ISMA_EN"],
 				usagePeriod: {
 					date: "2025-10-17",
@@ -288,8 +295,8 @@ export function generateGasExamplePayload(): TMeterPayload {
 								start: 2455.0,
 								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								end: 2460.0,
-								startSource: "ACTUAL",
-								endSource: "ACTUAL",
+								startSource: ESourceEnum.ACTUAL,
+								endSource: ESourceEnum.ACTUAL,
 								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
@@ -311,7 +318,7 @@ export function generateGasExamplePayload(): TMeterPayload {
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
-								consumptionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
 								productionSource: null,
 							},
 							{
@@ -323,7 +330,7 @@ export function generateGasExamplePayload(): TMeterPayload {
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
-								consumptionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
 								productionSource: null,
 							},
 						],
@@ -343,7 +350,7 @@ export function generateGasExamplePayload(): TMeterPayload {
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
-								consumptionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
 								productionSource: null,
 							},
 							{
@@ -355,7 +362,7 @@ export function generateGasExamplePayload(): TMeterPayload {
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
-								consumptionSource: "ACTUAL",
+								consumptionSource: ESourceEnum.ACTUAL,
 								productionSource: null,
 							},
 						],
