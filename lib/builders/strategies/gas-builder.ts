@@ -1,6 +1,3 @@
-// Gas meter builder - Strategy Pattern implementation
-// Produces payloads matching ProcessedP4UsagesDayAlignedEvent_gas_example (MTQ reading, DM3 volume, PT1H)
-
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import {
 	ECommodityEnum,
@@ -19,7 +16,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 	}
 
 	getUnit(): string {
-		return "MTQ"; // Gas reading unit per Avro example
+		return "MTQ";
 	}
 
 	getDefaultProfileCategoryCode(): TProfileCategoryCode {
@@ -28,7 +25,6 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 
 	override withUsagePeriod(): this {
 		super.withUsagePeriod();
-		// Gas uses hourly intervals
 		if (this.payload.message.data.usagePeriod) {
 			this.payload.message.data.usagePeriod.interval = "PT1H";
 		}

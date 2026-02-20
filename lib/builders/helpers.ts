@@ -1,5 +1,3 @@
-// Example payloads use .0 suffixes to match example JSON; zero-fraction lint is intentional.
-
 import type {
 	TDeterminedEnergyConsumption,
 	TEnecoLabel,

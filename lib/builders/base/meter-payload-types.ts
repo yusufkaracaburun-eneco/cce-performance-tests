@@ -1,6 +1,3 @@
-// TypeScript interfaces and types for meter payloads
-// Based on ProcessedP4UsagesDayAlignedEvent_v1 Avro schema
-
 export enum EMeterType {
 	ELECTRICITY = "electricity",
 	GAS = "gas",
@@ -8,7 +5,6 @@ export enum EMeterType {
 
 export type TMeterType = EMeterType;
 
-// Enums from the schema
 export enum EProfileCategoryCode {
 	E1A = "E1A",
 	E1B = "E1B",
@@ -96,7 +92,7 @@ export interface IDayReadingValue {
 /** Avro data.reading (ReadingValuesRecord): unit (e.g. kWh, MTQ), intervalDuration P1D, values. */
 export interface IDayReadings {
 	unit?: string | null;
-	intervalDuration?: string | null; // ISO 8601 e.g. P1D
+	intervalDuration?: string | null;
 	values?: IDayReadingValue[] | null;
 }
 
@@ -115,7 +111,7 @@ export interface IIntervalReadingValue {
 /** Interval-level readings: unit (e.g. Wh for electricity), intervalDuration (e.g. PT15M), values. */
 export interface IIntervalReadings {
 	unit?: string | null;
-	intervalDuration?: string | null; // ISO 8601 e.g. PT15M
+	intervalDuration?: string | null;
 	values?: IIntervalReadingValue[] | null;
 }
 
@@ -132,7 +128,7 @@ export interface IVolumeValue {
 	production?: number | null;
 	temperatureCorrection?: number | null;
 	caloricValue?: number | null;
-	isPeak?: boolean | null; // Required in API conversion, default: false
+	isPeak?: boolean | null;
 	consumptionSource?: TSourceEnum | null;
 	productionSource?: TSourceEnum | null;
 }
@@ -141,35 +137,35 @@ export interface IVolumeValue {
 export interface IVolumes {
 	interval: {
 		unit: string;
-		intervalDuration?: string | null; // ISO 8601 e.g. PT15M, PT1H
+		intervalDuration?: string | null;
 		values?: IVolumeValue[] | null;
 	};
 }
 
 export interface IMeterData {
 	connectionMetadata?: IConnectionMetadata | null;
-	label: TEnecoLabel; // Required, default: "UNDEFINED"
+	label: TEnecoLabel;
 	commodity?: TCommodityEnum | null;
 	mandateCodes?: string[] | null;
 	usagePeriod?: IUsagePeriod | null;
 	readings?: IReadings | null;
 	volumes?: IVolumes | null;
-	updatedAt: string; // Required
+	updatedAt: string;
 }
 
 export interface IMeterMessage {
-	eventInstanceId: string; // Required
-	eventName: string; // Required, default: "ProcessedP4UsagesDayAligned"
-	eventTime: string; // Required, RFC 3339 format
-	eventSource: string; // Required, default: "MTR"
+	eventInstanceId: string;
+	eventName: string;
+	eventTime: string;
+	eventSource: string;
 	eventSubject?: string | null;
 	eventReason?: string | null;
 	containsPrivacyData?: boolean | null;
-	data: IMeterData; // Required
+	data: IMeterData;
 }
 
 export interface IMeterPayload {
-	key: string; // Added by API wrapper, not in schema
+	key: string;
 	message: IMeterMessage;
 }
 

@@ -17,7 +17,6 @@ import type {
 
 const SCHEMA_TAG = { schema: { tag: 0 } };
 
-// Enum → number (order from Avro schema / backend)
 const ENECO_LABEL: Record<string, number> = {
 	eneco: 0,
 	oxxio: 1,

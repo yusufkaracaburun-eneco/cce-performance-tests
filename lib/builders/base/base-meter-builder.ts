@@ -1,6 +1,3 @@
-// Abstract base builder using Template Method Pattern
-// Shared common structure with meter-specific implementations
-
 import { uuidv4 } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
 import {
 	EDeterminedEnergyConsumption,
@@ -24,17 +21,14 @@ export abstract class BaseMeterBuilder {
 		this.vuId = vuId;
 		this.iterId = iterId;
 
-		// Generate timestamps once per builder instance (performance optimization)
-		// eventTime should be date with zoned time set to 00:00:00 of that day (RFC 3339)
 		const now = new Date();
 		const dateStr = now.toISOString().split("T")[0];
-		this.eventTime = `${dateStr}T00:00:00Z`; // RFC 3339 format with 00:00:00
+		this.eventTime = `${dateStr}T00:00:00Z`;
 		this.updatedAt = new Date().toISOString();
 		this.timestamp = new Date().toISOString();
 
 		const eventInstanceId = uuidv4();
 
-		// Initialize base payload structure matching ProcessedP4UsagesDayAlignedEvent_v1 schema
 		this.payload = {
 			key: `k6-test-key-${vuId}-${iterId}`,
 			message: {
@@ -54,7 +48,6 @@ export abstract class BaseMeterBuilder {
 		};
 	}
 
-	// Common methods (shared across all meter types)
 	withConnectionMetadata(
 		vuId: number,
 		iterId: number,
@@ -93,7 +86,6 @@ export abstract class BaseMeterBuilder {
 	}
 
 	withUsagePeriod(): this {
-		// Keep usage period date in sync with eventTime day (RFC 3339 / ISO date)
 		const dateStr = this.eventTime.split("T")[0];
 		this.payload.message.data.usagePeriod = {
 			date: dateStr,
@@ -104,7 +96,6 @@ export abstract class BaseMeterBuilder {
 		return this;
 	}
 
-	// Abstract methods (meter-specific implementations)
 	abstract withDayReadings(iterId: number): this;
 	abstract withIntervalReadings(iterId: number): this;
 	abstract withVolumes(iterId: number): this;
@@ -112,7 +103,6 @@ export abstract class BaseMeterBuilder {
 	abstract getUnit(): string;
 	abstract getDefaultProfileCategoryCode(): TProfileCategoryCode;
 
-	// Build method - returns final payload
 	build(): TMeterPayload {
 		return this.payload;
 	}

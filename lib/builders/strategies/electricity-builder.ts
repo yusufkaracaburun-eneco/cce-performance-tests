@@ -1,6 +1,3 @@
-// Electricity meter builder - Strategy Pattern implementation
-// Produces payloads matching ProcessedP4UsagesDayAlignedEvent_elec_example (kWh day readings, Wh interval/volume)
-
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import {
 	ECommodityEnum,
@@ -25,7 +22,7 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	}
 
 	getDefaultProfileCategoryCode(): TProfileCategoryCode {
-		return EProfileCategoryCode.E1B; // Match example; dual-tariff typical
+		return EProfileCategoryCode.E1B;
 	}
 
 	/** Build interval/volume values for the usage day (15-min slots, Wh). */
