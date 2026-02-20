@@ -3,14 +3,14 @@ import { EMeterType } from "../base/meter-payload-types.ts";
 import { ElectricityMeterBuilder } from "../strategies/electricity-builder.ts";
 import { GasMeterBuilder } from "../strategies/gas-builder.ts";
 
-type BuilderConstructor = new (
+type TBuilderConstructor = new (
 	vuId: number,
 	iterId: number,
 ) => BaseMeterBuilder;
 
-const registry = new Map<EMeterType, BuilderConstructor>();
+const registry = new Map<EMeterType, TBuilderConstructor>();
 
-function register(type: EMeterType, Builder: BuilderConstructor): void {
+function register(type: EMeterType, Builder: TBuilderConstructor): void {
 	registry.set(type, Builder);
 }
 
@@ -18,7 +18,7 @@ register(EMeterType.ELECTRICITY, ElectricityMeterBuilder);
 register(EMeterType.GAS, GasMeterBuilder);
 
 export class MeterBuilderFactory {
-	static register(type: EMeterType, Builder: BuilderConstructor): void {
+	static register(type: EMeterType, Builder: TBuilderConstructor): void {
 		register(type, Builder);
 	}
 

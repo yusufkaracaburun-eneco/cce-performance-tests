@@ -15,7 +15,56 @@
 	"linter": {
 		"enabled": true,
 		"rules": {
-			"recommended": true
+			"recommended": true,
+			"style": {
+				"useNamingConvention": {
+					"level": "error",
+					"options": {
+						"strictCase": false,
+						"conventions": [
+							{
+								"selector": {
+									"kind": "interface"
+								},
+								"match": "I(.+)",
+								"formats": ["PascalCase"]
+							},
+							{
+								"selector": {
+									"kind": "typeAlias"
+								},
+								"match": "T(.+)",
+								"formats": ["PascalCase"]
+							},
+							{
+								"selector": {
+									"kind": "enum"
+								},
+								"match": "E(.+)",
+								"formats": ["PascalCase"]
+							},
+							{
+								"selector": {
+									"kind": "enumMember"
+								},
+								"match": ".*"
+							},
+							{
+								"selector": {
+									"kind": "objectLiteralMember"
+								},
+								"match": ".*"
+							},
+							{
+								"selector": {
+									"kind": "typeMember"
+								},
+								"match": ".*"
+							}
+						]
+					}
+				}
+			}
 		}
 	},
 	"javascript": {

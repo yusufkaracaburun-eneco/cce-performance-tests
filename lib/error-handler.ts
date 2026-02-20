@@ -52,10 +52,10 @@ export class ErrorHandler {
 					: String(traceparentHeader)
 				: undefined;
 
-		let response_body: string | undefined;
+		let responseBody: string | undefined;
 		if (res.status >= 400 && res.status < 500 && res.body != null) {
 			const raw = typeof res.body === "string" ? res.body : String(res.body);
-			response_body =
+			responseBody =
 				raw.length <= MAX_BODY_LOG_LENGTH
 					? raw
 					: `${raw.slice(0, MAX_BODY_LOG_LENGTH)}... (truncated, total ${raw.length} chars)`;
@@ -67,7 +67,7 @@ export class ErrorHandler {
 				status: res.status ?? 0,
 				error_code: res.error_code ?? 0,
 				traceparent,
-				...(response_body !== undefined && { response_body }),
+				...(responseBody !== undefined && { response_body: responseBody }),
 			},
 			tags,
 		);

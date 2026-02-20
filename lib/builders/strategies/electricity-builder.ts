@@ -3,13 +3,13 @@
 
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import {
-	EProfileCategoryCode,
 	ECommodityEnum,
+	EProfileCategoryCode,
 	ESourceEnum,
-	type TProfileCategoryCode,
 	type TCommodityEnum,
-	type TSourceEnum,
 	type TIntervalReadingValue,
+	type TProfileCategoryCode,
+	type TSourceEnum,
 	type TVolumeValue,
 } from "../base/meter-payload-types.ts";
 

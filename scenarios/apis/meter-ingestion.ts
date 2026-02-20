@@ -11,10 +11,10 @@ import type { TMeterIngestionScenarioOptions } from "./shared/types.ts";
 
 export type { TMeterIngestionScenarioOptions } from "./shared/types.ts";
 
-type PayloadGenerator = (meterType: EMeterType) => TMeterPayload;
+type TPayloadGenerator = (meterType: EMeterType) => TMeterPayload;
 
 function createMeterIngestionScenario(
-	payloadGenerator: PayloadGenerator,
+	payloadGenerator: TPayloadGenerator,
 	defaultMeterType: EMeterType = EMeterType.ELECTRICITY,
 	logPayload: boolean = false,
 ) {

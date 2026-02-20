@@ -3,15 +3,15 @@
 import type {
 	TDeterminedEnergyConsumption,
 	TEnecoLabel,
-	TProfileCategoryCode,
 	TMeterPayload,
+	TProfileCategoryCode,
 } from "./base/meter-payload-types.ts";
 import {
-	EMeterType,
-	EProfileCategoryCode,
+	ECommodityEnum,
 	EDeterminedEnergyConsumption,
 	EEnecoLabel,
-	ECommodityEnum,
+	EMeterType,
+	EProfileCategoryCode,
 	ESourceEnum,
 } from "./base/meter-payload-types.ts";
 import { MeterBuilderFactory } from "./factory/meter-builder-factory.ts";
@@ -78,7 +78,9 @@ export function generateGasPayload(
 	vuId: number,
 	iterId: number,
 ): TMeterPayload {
-	return buildStandardPayload(EMeterType.GAS, vuId, iterId, { label: EEnecoLabel.ENECO });
+	return buildStandardPayload(EMeterType.GAS, vuId, iterId, {
+		label: EEnecoLabel.ENECO,
+	});
 }
 
 /** Exact match to ProcessedP4UsagesDayAlignedEvent_elec_example.json. */
@@ -116,9 +118,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 						intervalDuration: "P1D",
 						values: [
 							{
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								start: 6395000.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								end: 6397000.0,
 								startSource: ESourceEnum.CORRECTED,
 								endSource: ESourceEnum.ACTUAL,
@@ -126,9 +126,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 								injection: false,
 							},
 							{
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								start: 5610000.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								end: 5611000.0,
 								startSource: ESourceEnum.CORRECTED,
 								endSource: ESourceEnum.ACTUAL,
@@ -145,9 +143,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 						values: [
 							{
 								timestamp: "2026-01-23T00:00:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 27.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -157,9 +153,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2026-01-23T00:15:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 35.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -169,9 +163,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2026-01-23T23:30:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 14.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -181,9 +173,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2026-01-23T23:45:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 20.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -201,9 +191,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 						values: [
 							{
 								timestamp: "2026-01-23T00:00:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 27.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -213,9 +201,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2026-01-23T00:15:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 35.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -225,9 +211,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2026-01-23T23:30:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 14.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -237,9 +221,7 @@ export function generateElectricityExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2026-01-23T23:45:00.000+0100",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 20.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								production: 0.0,
 								temperatureCorrection: null,
 								caloricValue: null,
@@ -291,13 +273,10 @@ export function generateGasExamplePayload(): TMeterPayload {
 						intervalDuration: "P1D",
 						values: [
 							{
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								start: 2455.0,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								end: 2460.0,
 								startSource: ESourceEnum.ACTUAL,
 								endSource: ESourceEnum.ACTUAL,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
@@ -311,10 +290,8 @@ export function generateGasExamplePayload(): TMeterPayload {
 						values: [
 							{
 								timestamp: "2025-10-16T08:00:00.000+0000",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 96.0,
 								production: null,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
@@ -323,10 +300,8 @@ export function generateGasExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2025-10-17T23:00:00.000+0000",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 30.0,
 								production: null,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
@@ -343,10 +318,8 @@ export function generateGasExamplePayload(): TMeterPayload {
 						values: [
 							{
 								timestamp: "2025-10-16T08:00:00.000+0000",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 96.0,
 								production: null,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,
@@ -355,10 +328,8 @@ export function generateGasExamplePayload(): TMeterPayload {
 							},
 							{
 								timestamp: "2025-10-17T23:00:00.000+0000",
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								consumption: 30.0,
 								production: null,
-								// biome-ignore lint/style/noZeroFraction: Match example JSON exactly
 								temperatureCorrection: 0.0,
 								caloricValue: 31.649999618530273,
 								isPeak: null,

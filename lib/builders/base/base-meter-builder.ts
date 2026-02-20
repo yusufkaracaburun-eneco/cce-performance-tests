@@ -3,14 +3,14 @@
 
 import { uuidv4 } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
 import {
+	ECommodityEnum,
 	EDeterminedEnergyConsumption,
 	EEnecoLabel,
-	ECommodityEnum,
+	type TCommodityEnum,
 	type TDeterminedEnergyConsumption,
 	type TEnecoLabel,
-	type TCommodityEnum,
-	type TProfileCategoryCode,
 	type TMeterPayload,
+	type TProfileCategoryCode,
 } from "./meter-payload-types.ts";
 
 export abstract class BaseMeterBuilder {

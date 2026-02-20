@@ -1,7 +1,7 @@
 import type { Options } from "k6/options";
 import {
-	type TEnvironmentValues,
 	getEnvironmentValues,
+	type TEnvironmentValues,
 } from "../../configs/env.conf.ts";
 import { getOptions } from "../../configs/options.conf.ts";
 import { ErrorHandler } from "../../lib/error-handler.ts";
