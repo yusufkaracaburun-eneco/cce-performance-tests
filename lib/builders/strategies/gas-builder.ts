@@ -8,7 +8,6 @@ import {
 	ESourceEnum,
 	type TCommodityEnum,
 	type TProfileCategoryCode,
-	type TSourceEnum,
 	type TVolumeValue,
 } from "../base/meter-payload-types.ts";
 
