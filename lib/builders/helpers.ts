@@ -1,139 +1,78 @@
-// Helper functions for generating meter payloads
-// Provides convenient wrapper functions for common payload generation patterns
-//
-// Note: Example payload functions (generateElectricityExamplePayload, generateGasExamplePayload)
-// use .0 suffixes on numeric values to match the example JSON files exactly.
-// Linter warnings about zero fractions are expected and intentional.
+// Example payloads use .0 suffixes to match example JSON; zero-fraction lint is intentional.
 
-import type { MeterPayload } from "./base/meter-payload-types.ts";
+import type {
+	DeterminedEnergyConsumption,
+	EnecoLabel,
+	ProfileCategoryCode,
+	TMeterPayload,
+} from "./base/meter-payload-types.ts";
 import { MeterType } from "./base/meter-payload-types.ts";
 import { MeterBuilderFactory } from "./factory/meter-builder-factory.ts";
 
-/**
- * Generates a complete meter payload with all standard fields
- * This is a convenience function that applies the most common builder pattern
- *
- * @param vuId - Virtual User ID
- * @param iterId - Iteration ID
- * @param meterType - Type of meter (MeterType.ELECTRICITY | MeterType.GAS), defaults to MeterType.ELECTRICITY
- * @returns Complete meter payload ready for API submission
- */
+interface IStandardPayloadOptions {
+	readonly profileCategoryCode?: ProfileCategoryCode;
+	readonly determinedEnergyConsumption?: DeterminedEnergyConsumption;
+	readonly isDualTariffMeter?: boolean | null;
+	readonly label?: EnecoLabel;
+}
+
+/** Standard builder chain: connection metadata, label, mandate codes, usage period, readings, volumes. */
+function buildStandardPayload(
+	meterType: MeterType,
+	vuId: number,
+	iterId: number,
+	options?: IStandardPayloadOptions,
+): TMeterPayload {
+	const builder = MeterBuilderFactory.create(meterType, vuId, iterId);
+	const conn = options
+		? builder.withConnectionMetadata(
+				vuId,
+				iterId,
+				options.profileCategoryCode,
+				options.determinedEnergyConsumption ?? "AMI",
+				options.isDualTariffMeter,
+			)
+		: builder.withConnectionMetadata(vuId, iterId);
+	const withLabel = options?.label
+		? conn.withLabelAndCommodity(options.label)
+		: conn.withLabelAndCommodity();
+	return withLabel
+		.withMandateCodes(vuId, iterId)
+		.withUsagePeriod()
+		.withDayReadings(iterId)
+		.withIntervalReadings(iterId)
+		.withVolumes(iterId)
+		.build();
+}
+
 export function generateMeterPayload(
 	vuId: number,
 	iterId: number,
 	meterType: MeterType = MeterType.ELECTRICITY,
-): MeterPayload {
-	return MeterBuilderFactory.create(meterType, vuId, iterId)
-		.withConnectionMetadata(vuId, iterId)
-		.withLabelAndCommodity()
-		.withMandateCodes(vuId, iterId)
-		.withUsagePeriod()
-		.withDayReadings(iterId)
-		.withIntervalReadings(iterId)
-		.withVolumes(iterId)
-		.build();
+): TMeterPayload {
+	return buildStandardPayload(meterType, vuId, iterId);
 }
 
-/**
- * Generates a single electricity meter payload with all standard fields.
- * Matches the electricity example shape (E1B, AZI, dual-tariff, Wh intervals).
- *
- * @param vuId - Virtual User ID
- * @param iterId - Iteration ID
- * @returns Complete electricity meter payload ready for API submission
- */
+/** Electricity payload: E1B, AZI, dual-tariff, Wh intervals. */
 export function generateElectricityPayload(
 	vuId: number,
 	iterId: number,
-): MeterPayload {
-	return MeterBuilderFactory.create(MeterType.ELECTRICITY, vuId, iterId)
-		.withConnectionMetadata(vuId, iterId, "E1B", "AZI", true)
-		.withLabelAndCommodity("eneco")
-		.withMandateCodes(vuId, iterId)
-		.withUsagePeriod()
-		.withDayReadings(iterId)
-		.withIntervalReadings(iterId)
-		.withVolumes(iterId)
-		.build();
+): TMeterPayload {
+	return buildStandardPayload(MeterType.ELECTRICITY, vuId, iterId, {
+		profileCategoryCode: "E1B",
+		determinedEnergyConsumption: "AZI",
+		isDualTariffMeter: true,
+		label: "eneco",
+	});
 }
 
-/**
- * Generates a single gas meter payload with all standard fields.
- * Matches the gas example shape (G1A, MTQ/DM3, PT1H, temperature/caloric).
- *
- * @param vuId - Virtual User ID
- * @param iterId - Iteration ID
- * @returns Complete gas meter payload ready for API submission
- */
-export function generateGasPayload(vuId: number, iterId: number): MeterPayload {
-	return MeterBuilderFactory.create(MeterType.GAS, vuId, iterId)
-		.withConnectionMetadata(vuId, iterId)
-		.withLabelAndCommodity("eneco")
-		.withMandateCodes(vuId, iterId)
-		.withUsagePeriod()
-		.withDayReadings(iterId)
-		.withIntervalReadings(iterId)
-		.withVolumes(iterId)
-		.build();
+/** Gas payload: G1A, MTQ/DM3, PT1H, temperature/caloric. */
+export function generateGasPayload(vuId: number, iterId: number): TMeterPayload {
+	return buildStandardPayload(MeterType.GAS, vuId, iterId, { label: "eneco" });
 }
 
-/**
- * Generates an array of electricity meter payloads for performance tests.
- * Each payload matches the electricity example shape (E1B, AZI, dual-tariff, Wh intervals).
- *
- * @param count - Number of payloads to generate
- * @returns Array of MeterPayload ready for toPublishBody / publish
- */
-export function generateElectricityPayloads(count: number): MeterPayload[] {
-	const payloads: MeterPayload[] = [];
-	for (let i = 0; i < count; i++) {
-		payloads.push(
-			MeterBuilderFactory.create(MeterType.ELECTRICITY, 1, i)
-				.withConnectionMetadata(1, i, "E1B", "AZI", true)
-				.withLabelAndCommodity("eneco")
-				.withMandateCodes(1, i)
-				.withUsagePeriod()
-				.withDayReadings(i)
-				.withIntervalReadings(i)
-				.withVolumes(i)
-				.build(),
-		);
-	}
-	return payloads;
-}
-
-/**
- * Generates an array of gas meter payloads for performance tests.
- * Each payload matches the gas example shape (G1A, MTQ/DM3, PT1H, temperature/caloric).
- *
- * @param count - Number of payloads to generate
- * @returns Array of MeterPayload ready for toPublishBody / publish
- */
-export function generateGasPayloads(count: number): MeterPayload[] {
-	const payloads: MeterPayload[] = [];
-	for (let i = 0; i < count; i++) {
-		payloads.push(
-			MeterBuilderFactory.create(MeterType.GAS, 1, i)
-				.withConnectionMetadata(1, i)
-				.withLabelAndCommodity("eneco")
-				.withMandateCodes(1, i)
-				.withUsagePeriod()
-				.withDayReadings(i)
-				.withIntervalReadings(i)
-				.withVolumes(i)
-				.build(),
-		);
-	}
-	return payloads;
-}
-
-/**
- * Generates an electricity meter payload matching exactly ProcessedP4UsagesDayAlignedEvent_elec_example.json.
- * All values match the example file exactly.
- *
- * @returns MeterPayload matching the electricity example exactly
- */
-export function generateElectricityExamplePayload(): MeterPayload {
+/** Exact match to ProcessedP4UsagesDayAlignedEvent_elec_example.json. */
+export function generateElectricityExamplePayload(): TMeterPayload {
 	return {
 		key: "example-electricity-key",
 		message: {
@@ -307,13 +246,8 @@ export function generateElectricityExamplePayload(): MeterPayload {
 	};
 }
 
-/**
- * Generates a gas meter payload matching exactly ProcessedP4UsagesDayAlignedEvent_gas_example.json.
- * All values match the example file exactly.
- *
- * @returns MeterPayload matching the gas example exactly
- */
-export function generateGasExamplePayload(): MeterPayload {
+/** Exact match to ProcessedP4UsagesDayAlignedEvent_gas_example.json. */
+export function generateGasExamplePayload(): TMeterPayload {
 	return {
 		key: "example-gas-key",
 		message: {

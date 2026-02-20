@@ -42,7 +42,7 @@ export type SourceEnum =
 	| "UNDEFINED";
 
 /** Avro: data.connectionMetadata (ConnectionMetaData). */
-export interface ConnectionMetadata {
+export interface IConnectionMetadata {
 	connectionPointEAN?: string | null;
 	countryCode?: string | null;
 	gridOperatorEAN?: string | null;
@@ -53,7 +53,7 @@ export interface ConnectionMetadata {
 }
 
 /** Avro: data.usagePeriod (UsagePeriod). date = YYYY-MM-DD, timezone = tzdata (e.g. Europe/Amsterdam). period/interval = ISO 8601 duration (e.g. P1D, PT15M). */
-export interface UsagePeriod {
+export interface IUsagePeriod {
 	date?: string | null;
 	timezone?: string | null;
 	period?: string | null;
@@ -61,7 +61,7 @@ export interface UsagePeriod {
 }
 
 /** One item in data.reading.values (Avro ReadingValuesItem). Used for daily cumulative start/end. */
-export interface DayReadingValue {
+export interface IDayReadingValue {
 	start?: number | null;
 	end?: number | null;
 	startSource?: SourceEnum | null;
@@ -73,14 +73,14 @@ export interface DayReadingValue {
 }
 
 /** Avro data.reading (ReadingValuesRecord): unit (e.g. kWh, MTQ), intervalDuration P1D, values. */
-export interface DayReadings {
+export interface IDayReadings {
 	unit?: string | null;
 	intervalDuration?: string | null; // ISO 8601 e.g. P1D
-	values?: DayReadingValue[] | null;
+	values?: IDayReadingValue[] | null;
 }
 
 /** One item in interval values (Avro VolumeValuesItem / electricity interval). timestamp = RFC3339 start of interval. */
-export interface IntervalReadingValue {
+export interface IIntervalReadingValue {
 	timestamp?: string | null;
 	consumption?: number | null;
 	production?: number | null;
@@ -92,20 +92,20 @@ export interface IntervalReadingValue {
 }
 
 /** Interval-level readings: unit (e.g. Wh for electricity), intervalDuration (e.g. PT15M), values. */
-export interface IntervalReadings {
+export interface IIntervalReadings {
 	unit?: string | null;
 	intervalDuration?: string | null; // ISO 8601 e.g. PT15M
-	values?: IntervalReadingValue[] | null;
+	values?: IIntervalReadingValue[] | null;
 }
 
 /** Maps to Avro data.reading (day) + interval shape for electricity (data.volume-style intervals in Wh). */
-export interface Readings {
-	day?: DayReadings | null;
-	interval?: IntervalReadings | null;
+export interface IReadings {
+	day?: IDayReadings | null;
+	interval?: IIntervalReadings | null;
 }
 
 /** One item in data.volume.values (Avro VolumeValuesItem). Gas: temperatureCorrection, caloricValue typically set. */
-export interface VolumeValue {
+export interface IVolumeValue {
 	timestamp?: string | null;
 	consumption?: number | null;
 	production?: number | null;
@@ -117,26 +117,26 @@ export interface VolumeValue {
 }
 
 /** Avro data.volume (VolumeRecord): unit (e.g. Wh, DM3), intervalDuration (e.g. PT15M, PT1H), values. */
-export interface Volumes {
+export interface IVolumes {
 	interval: {
 		unit: string;
 		intervalDuration?: string | null; // ISO 8601 e.g. PT15M, PT1H
-		values?: VolumeValue[] | null;
+		values?: IVolumeValue[] | null;
 	};
 }
 
-export interface MeterData {
-	connectionMetadata?: ConnectionMetadata | null;
+export interface IMeterData {
+	connectionMetadata?: IConnectionMetadata | null;
 	label: EnecoLabel; // Required, default: "UNDEFINED"
 	commodity?: CommodityEnum | null;
 	mandateCodes?: string[] | null;
-	usagePeriod?: UsagePeriod | null;
-	readings?: Readings | null;
-	volumes?: Volumes | null;
+	usagePeriod?: IUsagePeriod | null;
+	readings?: IReadings | null;
+	volumes?: IVolumes | null;
 	updatedAt: string; // Required
 }
 
-export interface MeterMessage {
+export interface IMeterMessage {
 	eventInstanceId: string; // Required
 	eventName: string; // Required, default: "ProcessedP4UsagesDayAligned"
 	eventTime: string; // Required, RFC 3339 format
@@ -144,15 +144,29 @@ export interface MeterMessage {
 	eventSubject?: string | null;
 	eventReason?: string | null;
 	containsPrivacyData?: boolean | null;
-	data: MeterData; // Required
+	data: IMeterData; // Required
 }
 
-export interface MeterPayload {
+export interface IMeterPayload {
 	key: string; // Added by API wrapper, not in schema
-	message: MeterMessage;
+	message: IMeterMessage;
 }
 
-export interface BuilderOptions {
+export interface IBuilderOptions {
 	vuId: number;
 	iterId: number;
 }
+
+export type TConnectionMetadata = IConnectionMetadata;
+export type TUsagePeriod = IUsagePeriod;
+export type TDayReadingValue = IDayReadingValue;
+export type TDayReadings = IDayReadings;
+export type TIntervalReadingValue = IIntervalReadingValue;
+export type TIntervalReadings = IIntervalReadings;
+export type TReadings = IReadings;
+export type TVolumeValue = IVolumeValue;
+export type TVolumes = IVolumes;
+export type TMeterData = IMeterData;
+export type TMeterMessage = IMeterMessage;
+export type TMeterPayload = IMeterPayload;
+export type TBuilderOptions = IBuilderOptions;

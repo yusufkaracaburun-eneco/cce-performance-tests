@@ -1,21 +1,20 @@
-export type EnvironmentValues = {
+export type TEnvironmentValues = {
 	baseUrl: string;
 	testStartTime: string;
 };
 
-type EnvConfig = {
-	BASE_URL: string;
-	[key: string]: any;
-};
+interface IEnvConfig {
+	readonly BASE_URL: string;
+}
 
-const environment = {
+const environment: Readonly<Record<string, string>> = {
 	dev: "dev",
 	test: "test",
 	acc: "acc",
 	prod: "prod",
 };
 
-const envConfig: Record<string, EnvConfig> = {
+const envConfig: Readonly<Record<string, IEnvConfig>> = {
 	[environment.dev]: {
 		BASE_URL: "http://host.docker.internal:5197",
 	},
@@ -32,7 +31,7 @@ const envConfig: Record<string, EnvConfig> = {
 
 const config = envConfig[__ENV.ENVIRONMENT] || envConfig[environment.dev];
 
-export function getEnvironmentValues(): EnvironmentValues {
+export function getEnvironmentValues(): TEnvironmentValues {
 	return {
 		baseUrl: config.BASE_URL,
 		testStartTime: new Date().toISOString(),

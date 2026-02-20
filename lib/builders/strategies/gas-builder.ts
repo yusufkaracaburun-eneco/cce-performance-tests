@@ -5,7 +5,7 @@ import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import type {
 	ProfileCategoryCode,
 	SourceEnum,
-	VolumeValue,
+	TVolumeValue,
 } from "../base/meter-payload-types.ts";
 
 const GAS_CALORIC_VALUE = 31.649999618530273;
@@ -80,7 +80,7 @@ export class GasMeterBuilder extends BaseMeterBuilder {
 	}
 
 	/** Build volume values for gas (PT1H): two slots matching example. */
-	private buildGasVolumeValues(date: string, iterId: number): VolumeValue[] {
+	private buildGasVolumeValues(date: string, iterId: number): TVolumeValue[] {
 		const [y, m, d] = date.split("-").map(Number);
 		const dayBefore = new Date(y, m - 1, d - 1);
 		const dayBeforeStr = dayBefore.toISOString().split("T")[0];

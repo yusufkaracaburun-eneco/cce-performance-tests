@@ -3,10 +3,10 @@
 
 import { BaseMeterBuilder } from "../base/base-meter-builder.ts";
 import type {
-	IntervalReadingValue,
 	ProfileCategoryCode,
 	SourceEnum,
-	VolumeValue,
+	TIntervalReadingValue,
+	TVolumeValue,
 } from "../base/meter-payload-types.ts";
 
 const ELEC_DAY_OFFSET = 6_395_000;
@@ -26,7 +26,7 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	}
 
 	/** Build interval/volume values for the usage day (15-min slots, Wh). */
-	private buildIntervalValues(iterId: number): IntervalReadingValue[] {
+	private buildIntervalValues(iterId: number): TIntervalReadingValue[] {
 		const period = this.payload.message.data.usagePeriod;
 		const date = period?.date ?? new Date().toISOString().split("T")[0];
 		const tz = period?.timezone ?? "Europe/Amsterdam";
@@ -93,7 +93,7 @@ export class ElectricityMeterBuilder extends BaseMeterBuilder {
 	}
 
 	withVolumes(iterId: number): this {
-		const values: VolumeValue[] = this.buildIntervalValues(iterId).map((v) => ({
+		const values: TVolumeValue[] = this.buildIntervalValues(iterId).map((v) => ({
 			timestamp: v.timestamp ?? undefined,
 			consumption: v.consumption ?? 0,
 			production: v.production ?? 0,

@@ -1,21 +1,54 @@
+import { MeterIngestionClient } from "../../lib/api/index.ts";
+import type { TMeterPayload } from "../../lib/builders/base/meter-payload-types.ts";
 import { MeterType } from "../../lib/builders/base/meter-payload-types.ts";
-import { generateMeterPayload } from "../../lib/builders/index.ts";
-import { createMeterIngestionScenario } from "./shared/base-scenario.ts";
+import {
+	generateElectricityExamplePayload,
+	generateGasExamplePayload,
+	generateMeterPayload,
+} from "../../lib/builders/index.ts";
+import { runIngestionScenario } from "./shared/run-ingestion-scenario.ts";
+import type { TMeterIngestionScenarioOptions } from "./shared/types.ts";
 
-export type { MeterIngestionScenarioOptions } from "./shared/types.ts";
+export type { TMeterIngestionScenarioOptions } from "./shared/types.ts";
 
-/**
- * Reusable scenario for meter ingestion testing.
- *
- * This scenario uses generateMeterPayload with configurable meter type.
- * The scenario can be reused across different test configurations (smoke, stress, etc.)
- * and environments (dev, test, acc, prod).
- *
- * @param baseUrl - Base URL of the API (e.g., "https://api.example.com")
- * @param options - Optional configuration for the scenario
- */
+type PayloadGenerator = (meterType: MeterType) => TMeterPayload;
+
+function createMeterIngestionScenario(
+	payloadGenerator: PayloadGenerator,
+	defaultMeterType: MeterType = MeterType.ELECTRICITY,
+	logPayload: boolean = false,
+) {
+	return function meterIngestionScenario(
+		baseUrl: string,
+		options?: TMeterIngestionScenarioOptions,
+	): void {
+		const meterType = options?.meterType ?? defaultMeterType;
+		const client = new MeterIngestionClient(baseUrl);
+		const payload = payloadGenerator(meterType);
+		if (logPayload) {
+			console.info("Payload: ", payload);
+		}
+		const defaultRequestTags = {
+			name: "meter_ingestion",
+			endpoint: "publish",
+			meter_type: meterType,
+		};
+		runIngestionScenario(client, () => payload, options, defaultRequestTags);
+	};
+}
+
 export const meterIngestionScenario = createMeterIngestionScenario(
 	(meterType) => generateMeterPayload(__VU, __ITER, meterType),
 	MeterType.ELECTRICITY,
-	true, // log payload
+);
+
+export const electricityMeterIngestionExampleScenario =
+	createMeterIngestionScenario(
+		(_meterType) => generateElectricityExamplePayload(),
+		MeterType.ELECTRICITY,
+	);
+
+export const gasMeterIngestionExampleScenario = createMeterIngestionScenario(
+	(_meterType) => generateGasExamplePayload(),
+	MeterType.GAS,
 );

@@ -5,12 +5,12 @@ import { uuidv4 } from "https://jslib.k6.io/k6-utils/1.4.0/index.js";
 import type {
 	DeterminedEnergyConsumption,
 	EnecoLabel,
-	MeterPayload,
 	ProfileCategoryCode,
+	TMeterPayload,
 } from "./meter-payload-types.ts";
 
 export abstract class BaseMeterBuilder {
-	protected payload: MeterPayload;
+	protected payload: TMeterPayload;
 	protected vuId: number;
 	protected iterId: number;
 	protected eventTime: string;
@@ -110,7 +110,7 @@ export abstract class BaseMeterBuilder {
 	abstract getDefaultProfileCategoryCode(): ProfileCategoryCode;
 
 	// Build method - returns final payload
-	build(): MeterPayload {
+	build(): TMeterPayload {
 		return this.payload;
 	}
 }

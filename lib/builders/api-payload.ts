@@ -1,18 +1,18 @@
 /**
- * Converts internal MeterPayload (string enums) to API format: schema tags + numeric enums.
+ * Converts internal TMeterPayload (string enums) to API format: schema tags + numeric enums.
  * Matches the Publish endpoint example: root { key, message }, message and nested objects have schema: { tag: 0 }, enums as numbers.
  */
 
 import type {
-	ConnectionMetadata,
-	DayReadings,
-	IntervalReadings,
-	MeterData,
-	MeterMessage,
-	MeterPayload,
-	Readings,
-	UsagePeriod,
-	Volumes,
+	TConnectionMetadata,
+	TDayReadings,
+	TIntervalReadings,
+	TMeterData,
+	TMeterMessage,
+	TMeterPayload,
+	TReadings,
+	TUsagePeriod,
+	TVolumes,
 } from "./base/meter-payload-types.ts";
 
 const SCHEMA_TAG = { schema: { tag: 0 } };
@@ -68,7 +68,7 @@ function toSource(v: string | undefined | null): number {
 }
 
 function convertConnectionMetadata(
-	m: ConnectionMetadata | undefined | null,
+	m: TConnectionMetadata | undefined | null,
 ): unknown {
 	if (m == null) return undefined;
 	return {
@@ -84,7 +84,7 @@ function convertConnectionMetadata(
 	};
 }
 
-function convertUsagePeriod(u: UsagePeriod | undefined | null): unknown {
+function convertUsagePeriod(u: TUsagePeriod | undefined | null): unknown {
 	if (u == null) return undefined;
 	return {
 		...SCHEMA_TAG,
@@ -95,7 +95,7 @@ function convertUsagePeriod(u: UsagePeriod | undefined | null): unknown {
 	};
 }
 
-function convertDayReadings(r: DayReadings | undefined | null): unknown {
+function convertDayReadings(r: TDayReadings | undefined | null): unknown {
 	if (r == null) return undefined;
 	const values = (r.values ?? []).map((v) => ({
 		...SCHEMA_TAG,
@@ -114,7 +114,7 @@ function convertDayReadings(r: DayReadings | undefined | null): unknown {
 }
 
 function convertIntervalReadings(
-	r: IntervalReadings | undefined | null,
+	r: TIntervalReadings | undefined | null,
 ): unknown {
 	if (r == null) return undefined;
 	const values = (r.values ?? []).map((v) => ({
@@ -132,7 +132,7 @@ function convertIntervalReadings(
 	};
 }
 
-function convertReadings(r: Readings | undefined | null): unknown {
+function convertReadings(r: TReadings | undefined | null): unknown {
 	if (r == null) return undefined;
 	return {
 		...SCHEMA_TAG,
@@ -141,7 +141,7 @@ function convertReadings(r: Readings | undefined | null): unknown {
 	};
 }
 
-function convertVolumes(v: Volumes | undefined | null): unknown {
+function convertVolumes(v: TVolumes | undefined | null): unknown {
 	if (v == null) return undefined;
 	const intervalValues = (v.interval?.values ?? []).map((item) => ({
 		...SCHEMA_TAG,
@@ -164,7 +164,7 @@ function convertVolumes(v: Volumes | undefined | null): unknown {
 	};
 }
 
-function convertData(d: MeterData): unknown {
+function convertData(d: TMeterData): unknown {
 	return {
 		...SCHEMA_TAG,
 		connectionMetadata: convertConnectionMetadata(d.connectionMetadata ?? null),
@@ -178,7 +178,7 @@ function convertData(d: MeterData): unknown {
 	};
 }
 
-function convertMessage(m: MeterMessage): unknown {
+function convertMessage(m: TMeterMessage): unknown {
 	return {
 		...SCHEMA_TAG,
 		eventInstanceId: m.eventInstanceId,
@@ -193,9 +193,9 @@ function convertMessage(m: MeterMessage): unknown {
 }
 
 /**
- * Converts a MeterPayload to the exact shape expected by POST /Publish: { key, message } with schema tags and numeric enums.
+ * Converts a TMeterPayload to the exact shape expected by POST /Publish: { key, message } with schema tags and numeric enums.
  */
-export function toPublishBody(payload: MeterPayload): {
+export function toPublishBody(payload: TMeterPayload): {
 	key: string;
 	message: unknown;
 } {

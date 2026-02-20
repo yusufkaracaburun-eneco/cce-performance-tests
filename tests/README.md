@@ -1,110 +1,99 @@
-# Performance Test Suite
+# Performance test suite
 
-This directory contains k6 performance tests for meter ingestion scenarios.
+k6 performance tests for ingestion APIs (meter today; contract, market-price, and others can be added). Each test is a **spec** that wires a **scenario** and load profile into a shared **test harness**.
 
-## Available Tests
+## How the structure works
 
-### 1. Generic Meter Ingestion (`meter-ingestion.spec.ts`)
-- **Scenario**: `meterIngestionScenario`
-- **Payload**: Uses `generateMeterPayload` with configurable meter type
-- **Use case**: General purpose test that can test both electricity and gas meters
-- **Run**: `npm run test:meter` or `k6 run tests/meter-ingestion.spec.ts`
-
-### 2. Electricity Meter Ingestion (`electricity-meter-ingestion.spec.ts`)
-- **Scenario**: `electricityMeterIngestionScenario`
-- **Payload**: Uses `generateElectricityPayload` (E1B, AZI, dual-tariff, Wh intervals)
-- **Use case**: Dedicated electricity meter testing with realistic payloads
-- **Run**: `npm run test:electricity` or `k6 run tests/electricity-meter-ingestion.spec.ts`
-
-### 3. Gas Meter Ingestion (`gas-meter-ingestion.spec.ts`)
-- **Scenario**: `gasMeterIngestionScenario`
-- **Payload**: Uses `generateGasPayload` (G1A, MTQ/DM3, PT1H, temperature/caloric)
-- **Use case**: Dedicated gas meter testing with realistic payloads
-- **Run**: `npm run test:gas` or `k6 run tests/gas-meter-ingestion.spec.ts`
-
-### 4. Electricity Example Payload (`electricity-meter-ingestion-example.spec.ts`)
-- **Scenario**: `electricityMeterIngestionExampleScenario`
-- **Payload**: Uses `generateElectricityExamplePayload` (exact match to example JSON)
-- **Use case**: Schema validation and API behavior testing with known-good data
-- **Run**: `npm run test:electricity-example` or `k6 run tests/electricity-meter-ingestion-example.spec.ts`
-
-### 5. Gas Example Payload (`gas-meter-ingestion-example.spec.ts`)
-- **Scenario**: `gasMeterIngestionExampleScenario`
-- **Payload**: Uses `generateGasExamplePayload` (exact match to example JSON)
-- **Use case**: Schema validation and API behavior testing with known-good data
-- **Run**: `npm run test:gas-example` or `k6 run tests/gas-meter-ingestion-example.spec.ts`
-
-## Running Tests
-
-### Run All Tests
-```bash
-npm test
-# or
-k6 run tests/*.spec.ts
+```text
+spec (*.spec.ts)  →  createTest({ testName, loadProfile, scenario })
+       ↓
+test harness (test-factory.ts)  →  getOptions(loadProfile), setup(), default(data) → scenario(baseUrl, options)
+       ↓
+scenario (e.g. scenarios/apis/meter-ingestion.ts)  →  create client, build payload, call runIngestionScenario(client, getPayload, options, tags)
+       ↓
+runIngestionScenario (shared)  →  client.publish(payload), k6 check() for 2xx/body/duration/JSON, optional errorHandler
 ```
 
-### Run Individual Tests
-```bash
-# Generic meter ingestion
-npm run test:meter
+- **Specs** (`tests/*.spec.ts`) only define *which* scenario runs and with which load. They call `createTest(config)` and re-export `options`, `setup`, `default`, `teardown` for k6.
+- **Test harness** (`tests/lib/test-factory.ts`, `test-config.ts`) is domain-agnostic. It uses `TScenarioFunction = (baseUrl, options?: TScenarioOptions) => void` and passes `TScenarioOptions` (e.g. `errorHandler`, `tags`). No reference to meter, contract, or market-price.
+- **Scenarios** (`scenarios/apis/*.ts`) are domain-specific. Each returns a function `(baseUrl, options?) => void` that creates a client, builds a payload, and calls the shared `runIngestionScenario(client, getPayload, options, defaultRequestTags)` in `scenarios/apis/shared/run-ingestion-scenario.ts`.
+- **Clients** (`lib/api/*.ts`) extend `BaseAPIClient` and implement `publish(payload, tags)` so they satisfy `IIngestionClient<TPayload>` used by `runIngestionScenario`.
 
-# Electricity meter ingestion
-npm run test:electricity
+So: one harness, many domains. New domains add their own client, payload types/builders, and scenario; they reuse env, options, error handling, and the generic scenario runner.
 
-# Gas meter ingestion
-npm run test:gas
+## Available tests (domains)
 
-# Electricity example payload
-npm run test:electricity-example
+| Domain              | Spec(s)                                                                 | Run command              |
+|---------------------|-------------------------------------------------------------------------|--------------------------|
+| Meter ingestion     | `meter-ingestion.spec.ts`, `*-meter-ingestion-example.spec.ts`         | `npm run test:meter` etc |
+| Contract ingestion  | *(to be added)*                                                         | e.g. `npm run test:contract` |
+| Market price        | *(to be added)*                                                         | e.g. `npm run test:market-price` |
 
-# Gas example payload
-npm run test:gas-example
+## How to add a new test domain (e.g. contract-ingestion)
+
+Follow the same pattern as meter ingestion.
+
+### 1. API client (`lib/api/contract-ingestion-client.ts`)
+
+- Extend `BaseAPIClient`.
+- Implement `publish(payload: ContractPayload, tags?: Record<string, string>): TPublishResult` (same shape as `MeterIngestionClient`).
+- Use your endpoint (e.g. `${this.baseUrl}/Contract/Publish`) and wire format.
+
+### 2. Payload types and builders (`lib/builders/contract/` or similar)
+
+- Define `ContractPayload` (and any wire DTO if different).
+- Provide a way to build a payload (e.g. `generateContractPayload()` or a builder).
+
+### 3. Scenario (`scenarios/apis/contract-ingestion.ts`)
+
+- Create a function that matches `TScenarioFunction`: `(baseUrl: string, options?: TScenarioOptions) => void`.
+- Inside: instantiate `ContractIngestionClient(baseUrl)`, build payload (e.g. `generateContractPayload()`), then call:
+  - `runIngestionScenario(client, () => payload, options, defaultRequestTags)`  
+  with `defaultRequestTags` e.g. `{ name: "contract_ingestion", endpoint: "publish" }`.
+- Export the scenario (e.g. `contractIngestionScenario`).
+
+If the contract API follows the same “POST JSON, expect 2xx + body” pattern, no need to duplicate checks or error handling; `runIngestionScenario` already does that.
+
+### 4. Spec (`tests/contract-ingestion.spec.ts`)
+
+```ts
+import { contractIngestionScenario } from "../scenarios/apis/contract-ingestion.ts";
+import { createTest } from "./lib/test-factory.ts";
+
+const test = createTest({
+  testName: "contract_ingestion",
+  loadProfile: "loadHigh",
+  scenario: contractIngestionScenario,
+  description: "Contract ingestion test.",
+});
+
+export const options = test.options;
+export const setup = test.setup;
+export default test.default;
+export const teardown = test.teardown;
 ```
 
-### Run with Custom Options
-```bash
-# Override virtual users and duration
-VIRTUAL_USERS=10 DURATION=60s k6 run tests/electricity-meter-ingestion.spec.ts
+### 5. npm script (`package.json`)
 
-# Run with specific stage (smoke, stress, loadLow, loadMed, loadHigh)
-# Edit the test file to change: getOptions("smoke")
-```
+Add e.g. `"test:contract": "k6 run tests/contract-ingestion.spec.ts"`.
 
-### Run with Dashboard
-```bash
-npm run test:dashboard
-```
+### 6. Optional: domain-specific scenario options
 
-### Run with Dynatrace Output
-```bash
-npm run test:dynatrace
-```
+If your scenario needs extra options (like meter’s `meterType`), define e.g. `IContractIngestionScenarioOptions extends IScenarioOptions` and `TContractIngestionScenarioOptions = IContractIngestionScenarioOptions` in `scenarios/apis/shared/types.ts` (same pattern as `IMeterIngestionScenarioOptions` / `TMeterIngestionScenarioOptions`) and use it in your scenario signature. The test harness still passes `TScenarioOptions`; your scenario can cast or extend as needed.
 
-## Test Configuration
+## Running tests
 
-Each test file can be configured with different load profiles by changing the `getOptions()` call:
+- **All:** `npm test` or `k6 run tests/*.spec.ts`
+- **Meter only:** `npm run test:meter`
+- **Single iteration (one payload):** `npm run test:meter:1` or `k6 run --vus 1 --iterations 1 tests/meter-ingestion.spec.ts`
+- **Load profile:** Set `loadProfile` in the spec (`smoke`, `stress`, `loadLow`, `loadMed`, `loadHigh`); see `configs/options.conf.ts`.
 
-- `getOptions("smoke")` - Light load: 1 VU for 30s
-- `getOptions("stress")` - Stress test: 10 VU for 60s
-- `getOptions("loadLow")` - Low load: 5 VU for 30s
-- `getOptions("loadMed")` - Medium load: 10 VU for 60s
-- `getOptions("loadHigh")` - High load: 15 VU for 90s
-- `getOptions()` - Default: Uses VIRTUAL_USERS env var or 1 VU, DURATION env var or 30s
+## Config and env
 
-## Environment Variables
+- **Load profiles:** `configs/options.conf.ts` — stages and thresholds.
+- **Base URL:** `configs/env.conf.ts` — `BASE_URL` / `ENVIRONMENT`.
+- **Env vars:** `BASE_URL`, `VIRTUAL_USERS`, `DURATION`; see root README and `.env.example`.
 
-Set these in `.env` or export before running:
+## Tags
 
-- `BASE_URL` - API base URL (required)
-- `VIRTUAL_USERS` - Number of virtual users (default: 1)
-- `DURATION` - Test duration (default: 30s)
-
-## Test Tags
-
-All tests use tags for filtering metrics:
-- `test_name` - Test identifier (e.g., "electricity_meter_ingestion")
-- `scenario` - Scenario name
-- `endpoint` - API endpoint (e.g., "publish")
-- `meter_type` - Meter type ("electricity" or "gas")
-
-Use these tags in Grafana or other monitoring tools to filter and analyze results.
+Tests and scenarios attach tags (e.g. `test_name`, `scenario`, `endpoint`, `meter_type`) for filtering in Grafana or k6 output. Use `defaultRequestTags` in your scenario so your domain’s tags are consistent.
